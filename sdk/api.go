@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/icosmos-space/llmatrix/sdk/assistants"
 	"github.com/icosmos-space/llmatrix/sdk/audio"
 	"github.com/icosmos-space/llmatrix/sdk/batches"
 	"github.com/icosmos-space/llmatrix/sdk/chat"
@@ -82,6 +83,11 @@ func ImageGeneration(ctx context.Context, req *image.Request, opts ...Option) (*
 // ImageEdit is LiteLLM image_edit().
 func ImageEdit(ctx context.Context, req *image.EditRequest, opts ...Option) (*image.Response, error) {
 	return packageClient(opts...).ImageEdit(ctx, req)
+}
+
+// ImageVariation creates image variations.
+func ImageVariation(ctx context.Context, req *image.VariationRequest, opts ...Option) (*image.Response, error) {
+	return packageClient(opts...).ImageVariation(ctx, req)
 }
 
 // Moderation is LiteLLM moderation().
@@ -172,4 +178,49 @@ func CancelBatch(ctx context.Context, batchID string, opts ...Option) (*batches.
 // ListBatches is LiteLLM list_batches().
 func ListBatches(ctx context.Context, limit int, opts ...Option) ([]batches.Batch, error) {
 	return packageClient(opts...).ListBatches(ctx, limit)
+}
+
+// CreateAssistants is LiteLLM create_assistants().
+func CreateAssistants(ctx context.Context, req *assistants.CreateRequest, opts ...Option) (*assistants.Assistant, error) {
+	return packageClient(opts...).CreateAssistants(ctx, req)
+}
+
+// GetAssistant fetches an assistant.
+func GetAssistant(ctx context.Context, assistantID string, opts ...Option) (*assistants.Assistant, error) {
+	return packageClient(opts...).GetAssistant(ctx, assistantID)
+}
+
+// DeleteAssistant deletes an assistant.
+func DeleteAssistant(ctx context.Context, assistantID string, opts ...Option) error {
+	return packageClient(opts...).DeleteAssistant(ctx, assistantID)
+}
+
+// CreateThread is LiteLLM create_thread().
+func CreateThread(ctx context.Context, req *assistants.ThreadCreateRequest, opts ...Option) (*assistants.Thread, error) {
+	return packageClient(opts...).CreateThread(ctx, req)
+}
+
+// GetThread is LiteLLM get_thread().
+func GetThread(ctx context.Context, threadID string, opts ...Option) (*assistants.Thread, error) {
+	return packageClient(opts...).GetThread(ctx, threadID)
+}
+
+// AddMessage is LiteLLM add_message().
+func AddMessage(ctx context.Context, threadID string, msg assistants.Message, opts ...Option) (*assistants.MessageObject, error) {
+	return packageClient(opts...).AddMessage(ctx, threadID, msg)
+}
+
+// ListMessages lists thread messages.
+func ListMessages(ctx context.Context, threadID string, opts ...Option) (*assistants.MessageList, error) {
+	return packageClient(opts...).ListMessages(ctx, threadID)
+}
+
+// CreateRun starts a thread run.
+func CreateRun(ctx context.Context, threadID string, req *assistants.RunCreateRequest, opts ...Option) (*assistants.Run, error) {
+	return packageClient(opts...).CreateRun(ctx, threadID, req)
+}
+
+// GetRun fetches a run.
+func GetRun(ctx context.Context, threadID, runID string, opts ...Option) (*assistants.Run, error) {
+	return packageClient(opts...).GetRun(ctx, threadID, runID)
 }

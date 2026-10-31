@@ -45,6 +45,18 @@ var known = map[string]Defaults{
 		BaseURL: "https://api.fireworks.ai/inference/v1",
 		EnvKey:  "FIREWORKS_API_KEY",
 	},
+	"litellm_proxy": {
+		BaseURL: "", // resolved via LITELLM_PROXY_API_BASE
+		EnvKey:  "LITELLM_PROXY_API_KEY",
+	},
+	"perplexity": {
+		BaseURL: "https://api.perplexity.ai",
+		EnvKey:  "PERPLEXITYAI_API_KEY",
+	},
+	"cohere": {
+		BaseURL: "https://api.cohere.ai/compatibility/v1",
+		EnvKey:  "COHERE_API_KEY",
+	},
 	"openai-compatible": {
 		BaseURL: "",
 		EnvKey:  "OPENAI_API_KEY",
@@ -62,6 +74,19 @@ func ResolveAPIKey(name, explicit string) string {
 	if explicit != "" {
 		return explicit
 	}
+	if name == "litellm_proxy" {
+		if v := os.Getenv("LITELLM_PROXY_API_KEY"); v != "" {
+			return v
+		}
+	}
+	if name == "perplexity" {
+		if v := os.Getenv("PERPLEXITYAI_API_KEY"); v != "" {
+			return v
+		}
+		if v := os.Getenv("PERPLEXITY_API_KEY"); v != "" {
+			return v
+		}
+	}
 	if d, ok := known[name]; ok && d.EnvKey != "" {
 		return os.Getenv(d.EnvKey)
 	}
@@ -72,6 +97,12 @@ func ResolveAPIKey(name, explicit string) string {
 func ResolveBaseURL(name, explicit string) string {
 	if explicit != "" {
 		return explicit
+	}
+	if name == "litellm_proxy" {
+		if v := os.Getenv("LITELLM_PROXY_API_BASE"); v != "" {
+			return v
+		}
+		return os.Getenv("LITELLM_PROXY_BASE_URL")
 	}
 	if d, ok := known[name]; ok {
 		return d.BaseURL

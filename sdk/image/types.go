@@ -26,6 +26,17 @@ type EditRequest struct {
 	User           string `json:"user,omitempty"`
 }
 
+// VariationRequest is an image variation request.
+type VariationRequest struct {
+	Model          string `json:"model,omitempty"`
+	Image          []byte `json:"-"`
+	ImageFileName  string `json:"-"`
+	N              *int   `json:"n,omitempty"`
+	Size           string `json:"size,omitempty"`
+	ResponseFormat string `json:"response_format,omitempty"`
+	User           string `json:"user,omitempty"`
+}
+
 // Data is one generated image.
 type Data struct {
 	URL     string `json:"url,omitempty"`

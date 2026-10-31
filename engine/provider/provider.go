@@ -23,6 +23,7 @@ type Capabilities struct {
 	TextCompletion bool
 	Files          bool
 	Batches        bool
+	Assistants     bool
 }
 
 // Provider is the root provider identity.

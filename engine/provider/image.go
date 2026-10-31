@@ -17,3 +17,9 @@ type ImageEditProvider interface {
 	Provider
 	ImageEdit(ctx context.Context, req *types.ImageEditRequest) (*types.ImageResponse, error)
 }
+
+// ImageVariationProvider creates image variations (OpenAI /images/variations).
+type ImageVariationProvider interface {
+	Provider
+	ImageVariation(ctx context.Context, req *types.ImageVariationRequest) (*types.ImageResponse, error)
+}

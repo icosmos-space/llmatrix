@@ -38,9 +38,15 @@ func (c *Client) candidates(requestModel string) []model.Ref {
 		return nil
 	}
 	primary := model.ResolveAlias(c.cfg.Aliases, rawModel, c.cfg.Provider)
+	if c.cfg.UseLiteLLMProxy && primary.Provider != "litellm_proxy" {
+		primary = model.Ref{Provider: "litellm_proxy", Model: primary.Model}
+	}
 	out := []model.Ref{primary}
 	for _, fb := range c.cfg.Fallbacks {
 		ref := model.ResolveAlias(c.cfg.Aliases, fb, "")
+		if c.cfg.UseLiteLLMProxy && ref.Provider != "litellm_proxy" {
+			ref = model.Ref{Provider: "litellm_proxy", Model: ref.Model}
+		}
 		if ref.Provider == primary.Provider && ref.Model == primary.Model {
 			continue
 		}

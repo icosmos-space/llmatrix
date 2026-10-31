@@ -55,6 +55,12 @@ func (p *Provider) Info() provider.Info {
 		display = "xAI"
 	case "fireworks":
 		display = "Fireworks"
+	case "litellm_proxy":
+		display = "LiteLLM Proxy"
+	case "perplexity":
+		display = "Perplexity"
+	case "cohere":
+		display = "Cohere"
 	}
 	caps := provider.Capabilities{
 		Chat: true, Streaming: true, Tools: true, Embeddings: true,
@@ -72,7 +78,21 @@ func (p *Provider) Info() provider.Info {
 		caps.TextCompletion = true
 		caps.Files = true
 		caps.Batches = true
-	case "deepseek", "groq", "together", "mistral", "openrouter", "xai", "fireworks":
+		caps.Assistants = true
+	case "litellm_proxy":
+		// Gateway typically exposes the OpenAI multimodal surface.
+		caps.Images = true
+		caps.ImageEdit = true
+		caps.Speech = true
+		caps.Transcription = true
+		caps.Rerank = true
+		caps.Responses = true
+		caps.Moderation = true
+		caps.TextCompletion = true
+		caps.Files = true
+		caps.Batches = true
+		caps.Assistants = true
+	case "deepseek", "groq", "together", "mistral", "openrouter", "xai", "fireworks", "perplexity", "cohere":
 		// chat-focused OpenAI-compatible APIs
 	case "ollama":
 		// chat + embeddings typically

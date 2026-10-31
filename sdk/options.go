@@ -146,3 +146,16 @@ func WithExtraHeaders(headers map[string]string) Option {
 func WithDropParams(drop bool) Option {
 	return func(c *Config) { c.DropParams = drop }
 }
+
+// WithUseLiteLLMProxy routes all requests through a LiteLLM Proxy gateway.
+func WithUseLiteLLMProxy(enabled bool) Option {
+	return func(c *Config) { c.UseLiteLLMProxy = enabled }
+}
+
+// WithRedisCache installs a Redis/Valkey response cache (LiteLLM Cache(type="redis")).
+func WithRedisCache(addr string, ttl time.Duration, opts ...cache.RedisOption) Option {
+	return func(cfg *Config) {
+		cfg.Cache = cache.NewRedis(addr, ttl, opts...)
+		cfg.CacheTTL = ttl
+	}
+}

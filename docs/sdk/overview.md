@@ -14,6 +14,7 @@ Target: cover the LiteLLM **Python SDK** surface (not the Proxy gateway).
 | `embedding` | `sdk.Embedding` |
 | `image_generation` | `sdk.ImageGeneration` |
 | `image_edit` | `sdk.ImageEdit` |
+| image variations | `sdk.ImageVariation` |
 | `speech` | `sdk.Speech` |
 | `transcription` | `sdk.Transcription` |
 | `rerank` | `sdk.Rerank` |
@@ -25,7 +26,9 @@ Target: cover the LiteLLM **Python SDK** surface (not the Proxy gateway).
 | `responses` | `sdk.Responses` (OpenAI native; others bridged via chat) |
 | streaming responses | `sdk.ResponsesStream` |
 | get/delete/cancel responses | `sdk.GetResponse` / `DeleteResponse` / `CancelResponse` |
-| `Cache()` | `WithMemoryCache` / `WithDiskCache` + request `Caching` |
+| `Cache()` | `WithMemoryCache` / `WithDiskCache` / `WithRedisCache` + request `Caching` |
+| `litellm_proxy/` | `litellm_proxy/<model>` or `WithUseLiteLLMProxy(true)` |
+| assistants / threads / runs | `CreateAssistants` / `CreateThread` / `AddMessage` / `CreateRun` / … |
 | `supports_function_calling` | `sdk.SupportsFunctionCalling` |
 | `supports_vision` | `sdk.SupportsVision` |
 | `supports_parallel_function_calling` | `sdk.SupportsParallelFunctionCalling` |

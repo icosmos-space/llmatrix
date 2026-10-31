@@ -42,6 +42,9 @@ LLMatrix abstracts these differences behind a unified Go interface.
 | OpenRouter | Yes | Yes | Yes | Yes |
 | xAI | Yes | Yes | Yes | Yes |
 | Fireworks | Yes | Yes | Yes | Yes |
+| Perplexity | Yes | Yes | Yes | Yes |
+| Cohere | Yes | Yes | Yes | Yes |
+| LiteLLM Proxy | Yes | Yes | Yes | Yes |
 | Ollama | Yes | Yes | Yes | Yes |
 | OpenAI-compatible APIs | Yes | Yes | Yes | Yes |
 | Anthropic | Yes | Yes | Yes | — |

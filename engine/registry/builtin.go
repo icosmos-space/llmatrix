@@ -7,15 +7,18 @@ import (
 	"github.com/icosmos-space/llmatrix/engine/provider"
 	"github.com/icosmos-space/llmatrix/engine/providers/anthropic"
 	"github.com/icosmos-space/llmatrix/engine/providers/azure"
+	"github.com/icosmos-space/llmatrix/engine/providers/cohere"
 	"github.com/icosmos-space/llmatrix/engine/providers/deepseek"
 	"github.com/icosmos-space/llmatrix/engine/providers/fireworks"
 	"github.com/icosmos-space/llmatrix/engine/providers/gemini"
 	"github.com/icosmos-space/llmatrix/engine/providers/groq"
+	"github.com/icosmos-space/llmatrix/engine/providers/litellmproxy"
 	"github.com/icosmos-space/llmatrix/engine/providers/mistral"
 	"github.com/icosmos-space/llmatrix/engine/providers/ollama"
 	"github.com/icosmos-space/llmatrix/engine/providers/openai"
 	compat "github.com/icosmos-space/llmatrix/engine/providers/openaicompatible"
 	"github.com/icosmos-space/llmatrix/engine/providers/openrouter"
+	"github.com/icosmos-space/llmatrix/engine/providers/perplexity"
 	"github.com/icosmos-space/llmatrix/engine/providers/together"
 	"github.com/icosmos-space/llmatrix/engine/providers/xai"
 )
@@ -40,6 +43,14 @@ func applyCompatExtras(p *compat.Provider, cfg ProviderConfig) {
 	}
 }
 
+func finishCompat(p *compat.Provider, cfg ProviderConfig) provider.Provider {
+	if cfg.HTTPClient != nil {
+		p.HTTPClient = cfg.HTTPClient
+	}
+	applyCompatExtras(p, cfg)
+	return p
+}
+
 // NewProvider builds a provider by name.
 func NewProvider(cfg ProviderConfig) (provider.Provider, error) {
 	name := cfg.Name
@@ -48,69 +59,33 @@ func NewProvider(cfg ProviderConfig) (provider.Provider, error) {
 	}
 	switch name {
 	case "openai":
-		p := openai.New(cfg.APIKey, openai.WithBaseURL(cfg.BaseURL))
-		if cfg.HTTPClient != nil {
-			p.HTTPClient = cfg.HTTPClient
-		}
-		applyCompatExtras(p, cfg)
-		return p, nil
+		return finishCompat(openai.New(cfg.APIKey, openai.WithBaseURL(cfg.BaseURL)), cfg), nil
 	case "deepseek":
-		p := deepseek.New(cfg.APIKey, deepseek.WithBaseURL(cfg.BaseURL))
-		if cfg.HTTPClient != nil {
-			p.HTTPClient = cfg.HTTPClient
-		}
-		applyCompatExtras(p, cfg)
-		return p, nil
+		return finishCompat(deepseek.New(cfg.APIKey, deepseek.WithBaseURL(cfg.BaseURL)), cfg), nil
 	case "groq":
-		p := groq.New(cfg.APIKey, groq.WithBaseURL(cfg.BaseURL))
-		if cfg.HTTPClient != nil {
-			p.HTTPClient = cfg.HTTPClient
-		}
-		applyCompatExtras(p, cfg)
-		return p, nil
+		return finishCompat(groq.New(cfg.APIKey, groq.WithBaseURL(cfg.BaseURL)), cfg), nil
 	case "together":
-		p := together.New(cfg.APIKey, together.WithBaseURL(cfg.BaseURL))
-		if cfg.HTTPClient != nil {
-			p.HTTPClient = cfg.HTTPClient
-		}
-		applyCompatExtras(p, cfg)
-		return p, nil
+		return finishCompat(together.New(cfg.APIKey, together.WithBaseURL(cfg.BaseURL)), cfg), nil
 	case "mistral":
-		p := mistral.New(cfg.APIKey, mistral.WithBaseURL(cfg.BaseURL))
-		if cfg.HTTPClient != nil {
-			p.HTTPClient = cfg.HTTPClient
-		}
-		applyCompatExtras(p, cfg)
-		return p, nil
+		return finishCompat(mistral.New(cfg.APIKey, mistral.WithBaseURL(cfg.BaseURL)), cfg), nil
 	case "openrouter":
-		p := openrouter.New(cfg.APIKey, openrouter.WithBaseURL(cfg.BaseURL))
-		if cfg.HTTPClient != nil {
-			p.HTTPClient = cfg.HTTPClient
-		}
-		applyCompatExtras(p, cfg)
-		return p, nil
+		return finishCompat(openrouter.New(cfg.APIKey, openrouter.WithBaseURL(cfg.BaseURL)), cfg), nil
 	case "xai":
-		p := xai.New(cfg.APIKey, xai.WithBaseURL(cfg.BaseURL))
-		if cfg.HTTPClient != nil {
-			p.HTTPClient = cfg.HTTPClient
-		}
-		applyCompatExtras(p, cfg)
-		return p, nil
+		return finishCompat(xai.New(cfg.APIKey, xai.WithBaseURL(cfg.BaseURL)), cfg), nil
 	case "fireworks":
-		p := fireworks.New(cfg.APIKey, fireworks.WithBaseURL(cfg.BaseURL))
-		if cfg.HTTPClient != nil {
-			p.HTTPClient = cfg.HTTPClient
-		}
-		applyCompatExtras(p, cfg)
-		return p, nil
+		return finishCompat(fireworks.New(cfg.APIKey, fireworks.WithBaseURL(cfg.BaseURL)), cfg), nil
+	case "perplexity":
+		return finishCompat(perplexity.New(cfg.APIKey, perplexity.WithBaseURL(cfg.BaseURL)), cfg), nil
+	case "cohere":
+		return finishCompat(cohere.New(cfg.APIKey, cohere.WithBaseURL(cfg.BaseURL)), cfg), nil
+	case "litellm_proxy", "litellm-proxy":
+		return finishCompat(litellmproxy.New(cfg.APIKey, litellmproxy.WithBaseURL(cfg.BaseURL)), cfg), nil
 	case "ollama":
 		opts := []ollama.Option{ollama.WithBaseURL(cfg.BaseURL), ollama.WithAPIKey(cfg.APIKey)}
 		if cfg.HTTPClient != nil {
 			opts = append(opts, ollama.WithHTTPClient(cfg.HTTPClient))
 		}
-		p := ollama.New(opts...)
-		applyCompatExtras(p, cfg)
-		return p, nil
+		return finishCompat(ollama.New(opts...), cfg), nil
 	case "anthropic":
 		opts := []anthropic.Option{anthropic.WithBaseURL(cfg.BaseURL)}
 		if cfg.HTTPClient != nil {
@@ -131,10 +106,8 @@ func NewProvider(cfg ProviderConfig) (provider.Provider, error) {
 		return azure.New(cfg.APIKey, opts...), nil
 	case "openai-compatible", "openaicompatible":
 		p := compat.New("openai-compatible", cfg.APIKey, cfg.BaseURL)
-		p.HTTPClient = cfg.HTTPClient
-		applyCompatExtras(p, cfg)
-		return p, nil
+		return finishCompat(p, cfg), nil
 	default:
-		return nil, fmt.Errorf("registry: unsupported provider %q (supported: openai, deepseek, groq, together, mistral, openrouter, xai, fireworks, ollama, anthropic, gemini, azure, openai-compatible)", name)
+		return nil, fmt.Errorf("registry: unsupported provider %q", name)
 	}
 }

@@ -87,7 +87,10 @@ func (p *Provider) doJSON(ctx context.Context, method, path string, body, dest a
 		return errors.Wrap(errors.KindProvider, p.Info().Name, "http request failed", err)
 	}
 	defer resp.Body.Close()
+	return p.decodeJSONResponse(resp, dest)
+}
 
+func (p *Provider) decodeJSONResponse(resp *http.Response, dest any) error {
 	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return errors.Wrap(errors.KindProvider, p.Info().Name, "read response", err)

@@ -20,7 +20,10 @@ Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one
 | `create_batch()` / batches | `CreateBatch` / `RetrieveBatch` / `CancelBatch` / `ListBatches` |
 | `token_counter` | `sdk.TokenCounter` / `TokenCounterMessages` |
 | `completion_cost` | `sdk.CompletionCost` / `CompletionCostFromUsage` |
-| `Cache()` + `caching=True` | `WithMemoryCache` / `WithDiskCache` + request `Caching` |
+| `Cache()` + `caching=True` | `WithMemoryCache` / `WithDiskCache` / `WithRedisCache` + request `Caching` |
+| `litellm_proxy/` | `litellm_proxy/<model>` or `WithUseLiteLLMProxy(true)` |
+| assistants / threads / runs | `CreateAssistants` / `CreateThread` / `AddMessage` / `CreateRun` / … |
+| image variations | `sdk.ImageVariation` |
 | `text_completion(..., stream=True)` | `sdk.TextCompletionStream` |
 | `supports_function_calling` / `supports_vision` | `SupportsFunctionCalling` / `SupportsVision` |
 | `get_supported_openai_params` | `GetSupportedOpenAIParams` |
@@ -51,6 +54,9 @@ Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one
 | OpenRouter | `openrouter/<model>` | `OPENROUTER_API_KEY` |
 | xAI | `xai/grok-2` | `XAI_API_KEY` |
 | Fireworks | `fireworks/<model>` | `FIREWORKS_API_KEY` |
+| Perplexity | `perplexity/<model>` | `PERPLEXITYAI_API_KEY` |
+| Cohere | `cohere/<model>` | `COHERE_API_KEY` |
+| LiteLLM Proxy | `litellm_proxy/<model>` | `LITELLM_PROXY_API_KEY` + `LITELLM_PROXY_API_BASE` |
 | Generic | `openai-compatible/...` + `WithBaseURL` | `OPENAI_API_KEY` |
 
 ## Quick start

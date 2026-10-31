@@ -40,4 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LiteLLM helpers: `SupportsFunctionCalling` / `SupportsVision` / `SupportsParallelFunctionCalling`,
   `GetSupportedOpenAIParams`, `GetModelInfo`.
 - Client `WithOrganization`, `WithExtraHeaders`, `WithDropParams`.
+- `litellm_proxy` provider + `WithUseLiteLLMProxy`; Perplexity / Cohere providers.
+- Redis cache (`WithRedisCache`, stdlib RESP).
+- Assistants/Threads/Runs helpers (`CreateAssistants`, `CreateThread`, `AddMessage`, `CreateRun`, …).
+- `ImageVariation` (`/images/variations`).
 

@@ -135,6 +135,35 @@ func (c *Client) Rerank(ctx context.Context, req *rerank.Request) (*rerank.Respo
 	return out.(*rerank.Response), nil
 }
 
+// ImageVariation creates image variations.
+func (c *Client) ImageVariation(ctx context.Context, req *image.VariationRequest) (*image.Response, error) {
+	if req == nil {
+		return nil, ErrInvalidRequest
+	}
+	modelName := req.Model
+	if modelName == "" {
+		modelName = "openai/dall-e-2"
+	}
+	out, err := c.withCandidates(ctx, "image_variation", modelName, func(ctx context.Context, ref model.Ref, p provider.Provider) (types.Usage, any, error) {
+		vp, ok := p.(provider.ImageVariationProvider)
+		if !ok {
+			return types.Usage{}, nil, fmt.Errorf("%w: provider %q does not support image variation", ErrUnsupported, ref.Provider)
+		}
+		resp, err := vp.ImageVariation(ctx, &types.ImageVariationRequest{
+			Model: ref.Model, Image: req.Image, ImageFileName: req.ImageFileName,
+			N: req.N, Size: req.Size, ResponseFormat: req.ResponseFormat, User: req.User,
+		})
+		if err != nil {
+			return types.Usage{}, nil, err
+		}
+		return types.Usage{}, fromEngineImageResponse(resp), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out.(*image.Response), nil
+}
+
 // ImageEdit edits an image (LiteLLM image_edit()).
 func (c *Client) ImageEdit(ctx context.Context, req *image.EditRequest) (*image.Response, error) {
 	if req == nil {
