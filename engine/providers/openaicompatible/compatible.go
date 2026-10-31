@@ -47,6 +47,12 @@ func (p *Provider) Info() provider.Info {
 		display = "Together AI"
 	case "mistral":
 		display = "Mistral"
+	case "openrouter":
+		display = "OpenRouter"
+	case "xai":
+		display = "xAI"
+	case "fireworks":
+		display = "Fireworks"
 	}
 	caps := provider.Capabilities{
 		Chat: true, Streaming: true, Tools: true, Embeddings: true,
@@ -61,7 +67,10 @@ func (p *Provider) Info() provider.Info {
 		caps.Rerank = true
 		caps.Responses = true
 		caps.Moderation = true
-	case "deepseek", "groq", "together", "mistral":
+		caps.TextCompletion = true
+		caps.Files = true
+		caps.Batches = true
+	case "deepseek", "groq", "together", "mistral", "openrouter", "xai", "fireworks":
 		// chat-focused OpenAI-compatible APIs
 	case "ollama":
 		// chat + embeddings typically

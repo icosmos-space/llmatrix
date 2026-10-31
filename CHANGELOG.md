@@ -31,4 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LiteLLM SDK parity: `Moderation`, `ImageEdit`, `TokenCounter` / `CompletionCost`,
   chat `reasoning_effort` / `max_completion_tokens` / `logprobs` / Anthropic `thinking`,
   Responses `previous_response_id`.
+- In-memory response `Cache` (`WithMemoryCache`, request `Caching=true`) for chat/embedding/text.
+- `TextCompletion` (OpenAI `/completions`).
+- Files + Batches: `CreateFile` / `GetFile` / `DeleteFile` / `ListFiles` / `GetFileContent`,
+  `CreateBatch` / `RetrieveBatch` / `CancelBatch` / `ListBatches`.
+- OpenRouter / xAI / Fireworks OpenAI-compatible providers.
 

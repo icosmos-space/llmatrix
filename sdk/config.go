@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/icosmos-space/llmatrix/engine/cache"
 	"github.com/icosmos-space/llmatrix/engine/callback"
 	"github.com/icosmos-space/llmatrix/engine/model"
 	"github.com/icosmos-space/llmatrix/engine/retry"
@@ -22,6 +23,8 @@ type Config struct {
 	Fallbacks  []string
 	Aliases    *model.AliasMap
 	Callbacks  *callback.Bus
+	Cache      cache.Cache
+	CacheTTL   time.Duration
 }
 
 func defaultConfig() Config {

@@ -51,4 +51,6 @@ type Request struct {
 	ReasoningEffort     string         `json:"reasoning_effort,omitempty"`
 	PromptCacheKey      string         `json:"prompt_cache_key,omitempty"`
 	Thinking            any            `json:"thinking,omitempty"`
+	// Caching enables LiteLLM-style response caching when the client has a Cache.
+	Caching *bool `json:"caching,omitempty"`
 }

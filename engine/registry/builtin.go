@@ -8,13 +8,16 @@ import (
 	"github.com/icosmos-space/llmatrix/engine/providers/anthropic"
 	"github.com/icosmos-space/llmatrix/engine/providers/azure"
 	"github.com/icosmos-space/llmatrix/engine/providers/deepseek"
+	"github.com/icosmos-space/llmatrix/engine/providers/fireworks"
 	"github.com/icosmos-space/llmatrix/engine/providers/gemini"
 	"github.com/icosmos-space/llmatrix/engine/providers/groq"
 	"github.com/icosmos-space/llmatrix/engine/providers/mistral"
 	"github.com/icosmos-space/llmatrix/engine/providers/ollama"
 	"github.com/icosmos-space/llmatrix/engine/providers/openai"
 	compat "github.com/icosmos-space/llmatrix/engine/providers/openaicompatible"
+	"github.com/icosmos-space/llmatrix/engine/providers/openrouter"
 	"github.com/icosmos-space/llmatrix/engine/providers/together"
+	"github.com/icosmos-space/llmatrix/engine/providers/xai"
 )
 
 // ProviderConfig configures a concrete provider instance.
@@ -63,6 +66,24 @@ func NewProvider(cfg ProviderConfig) (provider.Provider, error) {
 			p.HTTPClient = cfg.HTTPClient
 		}
 		return p, nil
+	case "openrouter":
+		p := openrouter.New(cfg.APIKey, openrouter.WithBaseURL(cfg.BaseURL))
+		if cfg.HTTPClient != nil {
+			p.HTTPClient = cfg.HTTPClient
+		}
+		return p, nil
+	case "xai":
+		p := xai.New(cfg.APIKey, xai.WithBaseURL(cfg.BaseURL))
+		if cfg.HTTPClient != nil {
+			p.HTTPClient = cfg.HTTPClient
+		}
+		return p, nil
+	case "fireworks":
+		p := fireworks.New(cfg.APIKey, fireworks.WithBaseURL(cfg.BaseURL))
+		if cfg.HTTPClient != nil {
+			p.HTTPClient = cfg.HTTPClient
+		}
+		return p, nil
 	case "ollama":
 		opts := []ollama.Option{ollama.WithBaseURL(cfg.BaseURL), ollama.WithAPIKey(cfg.APIKey)}
 		if cfg.HTTPClient != nil {
@@ -92,6 +113,6 @@ func NewProvider(cfg ProviderConfig) (provider.Provider, error) {
 		p.HTTPClient = cfg.HTTPClient
 		return p, nil
 	default:
-		return nil, fmt.Errorf("registry: unsupported provider %q (supported: openai, deepseek, groq, together, mistral, ollama, anthropic, gemini, azure, openai-compatible)", name)
+		return nil, fmt.Errorf("registry: unsupported provider %q (supported: openai, deepseek, groq, together, mistral, openrouter, xai, fireworks, ollama, anthropic, gemini, azure, openai-compatible)", name)
 	}
 }

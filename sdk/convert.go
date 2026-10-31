@@ -3,12 +3,15 @@ package sdk
 import (
 	"github.com/icosmos-space/llmatrix/engine/types"
 	"github.com/icosmos-space/llmatrix/sdk/audio"
+	"github.com/icosmos-space/llmatrix/sdk/batches"
 	"github.com/icosmos-space/llmatrix/sdk/chat"
 	"github.com/icosmos-space/llmatrix/sdk/embedding"
+	"github.com/icosmos-space/llmatrix/sdk/files"
 	"github.com/icosmos-space/llmatrix/sdk/image"
 	"github.com/icosmos-space/llmatrix/sdk/moderation"
 	"github.com/icosmos-space/llmatrix/sdk/rerank"
 	"github.com/icosmos-space/llmatrix/sdk/responses"
+	"github.com/icosmos-space/llmatrix/sdk/text"
 	"github.com/icosmos-space/llmatrix/sdk/tools"
 )
 
@@ -370,4 +373,86 @@ func fromEngineRerankResponse(resp *types.RerankResponse) *rerank.Response {
 		})
 	}
 	return out
+}
+
+func toEngineTextRequest(req *text.Request, model string) *types.TextCompletionRequest {
+	return &types.TextCompletionRequest{
+		Model: model, Prompt: req.Prompt, MaxTokens: req.MaxTokens,
+		Temperature: req.Temperature, TopP: req.TopP, N: req.N, Stop: req.Stop,
+		PresencePenalty: req.PresencePenalty, FrequencyPenalty: req.FrequencyPenalty,
+		LogitBias: req.LogitBias, User: req.User, Seed: req.Seed, Suffix: req.Suffix,
+		Echo: req.Echo, BestOf: req.BestOf, Logprobs: req.Logprobs,
+	}
+}
+
+func fromEngineTextResponse(resp *types.TextCompletionResponse) *text.Response {
+	if resp == nil {
+		return nil
+	}
+	out := &text.Response{
+		ID: resp.ID, Object: resp.Object, Created: resp.Created,
+		Model: resp.Model, Provider: resp.Provider,
+		Usage: text.Usage{
+			PromptTokens: resp.Usage.PromptTokens, CompletionTokens: resp.Usage.CompletionTokens,
+			TotalTokens: resp.Usage.TotalTokens,
+		},
+		Choices: make([]text.Choice, 0, len(resp.Choices)),
+	}
+	for _, c := range resp.Choices {
+		out.Choices = append(out.Choices, text.Choice{
+			Index: c.Index, Text: c.Text, FinishReason: c.FinishReason,
+		})
+	}
+	return out
+}
+
+func toEngineFileCreate(req *files.CreateRequest) *types.FileCreateRequest {
+	return &types.FileCreateRequest{
+		File: req.File, FileName: req.FileName, Purpose: req.Purpose,
+	}
+}
+
+func fromEngineFile(f *types.FileObject) *files.Object {
+	if f == nil {
+		return nil
+	}
+	return &files.Object{
+		ID: f.ID, Object: f.Object, Bytes: f.Bytes, CreatedAt: f.CreatedAt,
+		Filename: f.Filename, Purpose: f.Purpose, Status: f.Status, Provider: f.Provider,
+	}
+}
+
+func fromEngineFileList(r *types.FileListResponse) *files.ListResponse {
+	if r == nil {
+		return nil
+	}
+	out := &files.ListResponse{Object: r.Object, Provider: r.Provider, Data: make([]files.Object, 0, len(r.Data))}
+	for i := range r.Data {
+		out.Data = append(out.Data, *fromEngineFile(&r.Data[i]))
+	}
+	return out
+}
+
+func toEngineBatchCreate(req *batches.CreateRequest) *types.BatchCreateRequest {
+	return &types.BatchCreateRequest{
+		CompletionWindow: req.CompletionWindow, Endpoint: req.Endpoint,
+		InputFileID: req.InputFileID, Metadata: req.Metadata,
+	}
+}
+
+func fromEngineBatch(b *types.Batch) *batches.Batch {
+	if b == nil {
+		return nil
+	}
+	return &batches.Batch{
+		ID: b.ID, Object: b.Object, Endpoint: b.Endpoint, Errors: b.Errors,
+		InputFileID: b.InputFileID, CompletionWindow: b.CompletionWindow, Status: b.Status,
+		OutputFileID: b.OutputFileID, ErrorFileID: b.ErrorFileID,
+		CreatedAt: b.CreatedAt, InProgressAt: b.InProgressAt, ExpiresAt: b.ExpiresAt,
+		CompletedAt: b.CompletedAt, FailedAt: b.FailedAt, CancelledAt: b.CancelledAt,
+		RequestCounts: batches.RequestCounts{
+			Total: b.RequestCounts.Total, Completed: b.RequestCounts.Completed, Failed: b.RequestCounts.Failed,
+		},
+		Metadata: b.Metadata, Provider: b.Provider,
+	}
 }

@@ -10,18 +10,22 @@ Target: cover the LiteLLM **Python SDK** surface (not the Proxy gateway).
 |---|---|
 | `completion` | `sdk.Completion` / `Client.ChatCompletion` |
 | streaming completion | `sdk.CompletionStream` |
+| `text_completion` | `sdk.TextCompletion` |
 | `embedding` | `sdk.Embedding` |
 | `image_generation` | `sdk.ImageGeneration` |
+| `image_edit` | `sdk.ImageEdit` |
 | `speech` | `sdk.Speech` |
 | `transcription` | `sdk.Transcription` |
 | `rerank` | `sdk.Rerank` |
 | `moderation` | `sdk.Moderation` |
-| `image_edit` | `sdk.ImageEdit` |
+| `create_file` / file helpers | `sdk.CreateFile` / `GetFile` / `DeleteFile` / `ListFiles` / `GetFileContent` |
+| `create_batch` / batch helpers | `sdk.CreateBatch` / `RetrieveBatch` / `CancelBatch` / `ListBatches` |
 | `token_counter` | `sdk.TokenCounter` / `TokenCounterMessages` |
 | `completion_cost` | `sdk.CompletionCost` / `CompletionCostFromUsage` |
 | `responses` | `sdk.Responses` (OpenAI native; others bridged via chat) |
 | streaming responses | `sdk.ResponsesStream` |
 | get/delete/cancel responses | `sdk.GetResponse` / `DeleteResponse` / `CancelResponse` |
+| `Cache()` | `WithMemoryCache` + request `Caching` |
 | `Router` | `sdk.NewRouter` |
 | callbacks | `WithSuccessCallback` / `WithFailureCallback` |
 | exception mapping | `MapError` → `APIError` |

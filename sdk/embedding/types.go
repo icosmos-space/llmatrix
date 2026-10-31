@@ -7,6 +7,8 @@ type Request struct {
 	Dimensions     *int     `json:"dimensions,omitempty"`
 	EncodingFormat string   `json:"encoding_format,omitempty"`
 	User           string   `json:"user,omitempty"`
+	// Caching enables LiteLLM-style response caching when the client has a Cache.
+	Caching *bool `json:"caching,omitempty"`
 }
 
 // Item is a single embedding vector.

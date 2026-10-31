@@ -38,8 +38,11 @@ func DefaultAliases() *AliasMap {
 		"mixtral-8x7b":           "groq/mixtral-8x7b-32768",
 		"mistral-large":          "mistral/mistral-large-latest",
 		"mistral-small":          "mistral/mistral-small-latest",
+		"grok-2":                 "xai/grok-2",
+		"grok-2-latest":          "xai/grok-2-latest",
+		"gpt-3.5-turbo-instruct": "openai/gpt-3.5-turbo-instruct",
 		// Azure: use azure/<deployment>; no short aliases by default.
-		// Together: use together/<model-id>.
+		// Together / OpenRouter / Fireworks: use provider/<model-id>.
 	}}
 }
 

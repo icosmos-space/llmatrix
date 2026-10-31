@@ -8,15 +8,19 @@ Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one
 |---|---|
 | `completion()` | `sdk.Completion` / `Client.ChatCompletion` |
 | `completion(..., stream=True)` | `sdk.CompletionStream` / `Client.ChatCompletionStream` |
+| `text_completion()` | `sdk.TextCompletion` / `Client.TextCompletion` |
 | `embedding()` | `sdk.Embedding` / `Client.Embeddings` |
 | `image_generation()` | `sdk.ImageGeneration` / `Client.ImageGeneration` |
+| `image_edit()` | `sdk.ImageEdit` / `Client.ImageEdit` |
 | `speech()` | `sdk.Speech` / `Client.Speech` |
 | `transcription()` | `sdk.Transcription` / `Client.Transcription` |
 | `rerank()` | `sdk.Rerank` / `Client.Rerank` |
 | `moderation()` | `sdk.Moderation` / `Client.Moderation` |
-| `image_edit()` | `sdk.ImageEdit` / `Client.ImageEdit` |
+| `create_file()` / files | `CreateFile` / `GetFile` / `DeleteFile` / `ListFiles` / `GetFileContent` |
+| `create_batch()` / batches | `CreateBatch` / `RetrieveBatch` / `CancelBatch` / `ListBatches` |
 | `token_counter` | `sdk.TokenCounter` / `TokenCounterMessages` |
 | `completion_cost` | `sdk.CompletionCost` / `CompletionCostFromUsage` |
+| `Cache()` + `caching=True` | `WithMemoryCache` + request `Caching` |
 | `responses()` | `sdk.Responses` / `Client.Responses` (native OpenAI; else chat bridge) |
 | streaming responses | `sdk.ResponsesStream` / `Client.ResponsesStream` |
 | get/delete/cancel responses | `GetResponse` / `DeleteResponse` / `CancelResponse` |
@@ -39,6 +43,9 @@ Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one
 | Groq | `groq/llama-3.3-70b-versatile` | `GROQ_API_KEY` |
 | Together | `together/<model-id>` | `TOGETHER_API_KEY` |
 | Mistral | `mistral/mistral-large-latest` | `MISTRAL_API_KEY` |
+| OpenRouter | `openrouter/<model>` | `OPENROUTER_API_KEY` |
+| xAI | `xai/grok-2` | `XAI_API_KEY` |
+| Fireworks | `fireworks/<model>` | `FIREWORKS_API_KEY` |
 | Generic | `openai-compatible/...` + `WithBaseURL` | `OPENAI_API_KEY` |
 
 ## Quick start

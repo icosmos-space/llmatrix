@@ -19,6 +19,14 @@ func (c *Client) Embeddings(ctx context.Context, req *embedding.Request) (*embed
 	if req == nil {
 		return nil, ErrInvalidRequest
 	}
+	modelKey := c.cacheModelKey(req.Model)
+	if c.cacheEnabled(req.Caching) {
+		if v, ok := c.cacheGet("embedding", modelKey, req); ok {
+			if cached, ok := v.(*embedding.Response); ok {
+				return cached, nil
+			}
+		}
+	}
 	out, err := c.withCandidates(ctx, "embedding", req.Model, func(ctx context.Context, ref model.Ref, p provider.Provider) (types.Usage, any, error) {
 		embProv, ok := p.(provider.EmbeddingProvider)
 		if !ok {
@@ -33,7 +41,11 @@ func (c *Client) Embeddings(ctx context.Context, req *embedding.Request) (*embed
 	if err != nil {
 		return nil, err
 	}
-	return out.(*embedding.Response), nil
+	resp := out.(*embedding.Response)
+	if c.cacheEnabled(req.Caching) {
+		c.cacheSet("embedding", modelKey, req, resp)
+	}
+	return resp, nil
 }
 
 // ImageGeneration creates images from a prompt (LiteLLM image_generation()).

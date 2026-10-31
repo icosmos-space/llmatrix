@@ -17,6 +17,14 @@ func (c *Client) ChatCompletion(ctx context.Context, req *chat.Request) (*chat.R
 	if req == nil {
 		return nil, ErrInvalidRequest
 	}
+	modelKey := c.cacheModelKey(req.Model)
+	if c.cacheEnabled(req.Caching) {
+		if v, ok := c.cacheGet("chat", modelKey, req); ok {
+			if cached, ok := v.(*chat.Response); ok {
+				return cached, nil
+			}
+		}
+	}
 	out, err := c.withCandidates(ctx, "chat", req.Model, func(ctx context.Context, ref model.Ref, p provider.Provider) (types.Usage, any, error) {
 		chatProv, ok := p.(provider.ChatProvider)
 		if !ok {
@@ -33,7 +41,11 @@ func (c *Client) ChatCompletion(ctx context.Context, req *chat.Request) (*chat.R
 	if err != nil {
 		return nil, err
 	}
-	return out.(*chat.Response), nil
+	resp := out.(*chat.Response)
+	if c.cacheEnabled(req.Caching) {
+		c.cacheSet("chat", modelKey, req, resp)
+	}
+	return resp, nil
 }
 
 // ChatCompletionStream performs a streaming chat completion (LiteLLM completion(stream=True)).

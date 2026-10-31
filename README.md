@@ -39,6 +39,9 @@ LLMatrix abstracts these differences behind a unified Go interface.
 | Groq | Yes | Yes | Yes | Yes |
 | Together | Yes | Yes | Yes | Yes |
 | Mistral | Yes | Yes | Yes | Yes |
+| OpenRouter | Yes | Yes | Yes | Yes |
+| xAI | Yes | Yes | Yes | Yes |
+| Fireworks | Yes | Yes | Yes | Yes |
 | Ollama | Yes | Yes | Yes | Yes |
 | OpenAI-compatible APIs | Yes | Yes | Yes | Yes |
 | Anthropic | Yes | Yes | Yes | — |

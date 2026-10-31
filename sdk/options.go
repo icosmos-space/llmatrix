@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/icosmos-space/llmatrix/engine/cache"
 	"github.com/icosmos-space/llmatrix/engine/callback"
 	"github.com/icosmos-space/llmatrix/engine/model"
 	"github.com/icosmos-space/llmatrix/engine/retry"
@@ -92,4 +93,22 @@ func WithFailureCallback(h callback.Handler) Option {
 		}
 		c.Callbacks.OnFailure(h)
 	}
+}
+
+// WithCache sets a LiteLLM-style response cache (nil disables).
+func WithCache(c cache.Cache) Option {
+	return func(cfg *Config) { cfg.Cache = c }
+}
+
+// WithMemoryCache installs an in-memory cache (LiteLLM Cache() default).
+func WithMemoryCache(ttl time.Duration) Option {
+	return func(cfg *Config) {
+		cfg.Cache = cache.NewMemory(ttl)
+		cfg.CacheTTL = ttl
+	}
+}
+
+// WithCacheTTL sets the TTL used when writing cache entries.
+func WithCacheTTL(ttl time.Duration) Option {
+	return func(cfg *Config) { cfg.CacheTTL = ttl }
 }

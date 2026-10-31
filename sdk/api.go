@@ -5,18 +5,22 @@ import (
 	"sync"
 
 	"github.com/icosmos-space/llmatrix/sdk/audio"
+	"github.com/icosmos-space/llmatrix/sdk/batches"
 	"github.com/icosmos-space/llmatrix/sdk/chat"
 	"github.com/icosmos-space/llmatrix/sdk/embedding"
+	"github.com/icosmos-space/llmatrix/sdk/files"
 	"github.com/icosmos-space/llmatrix/sdk/image"
 	"github.com/icosmos-space/llmatrix/sdk/moderation"
 	"github.com/icosmos-space/llmatrix/sdk/rerank"
 	"github.com/icosmos-space/llmatrix/sdk/responses"
 	"github.com/icosmos-space/llmatrix/sdk/streaming"
+	"github.com/icosmos-space/llmatrix/sdk/text"
 )
 
 // Package-level helpers mirror LiteLLM's module functions:
-// completion / embedding / image_generation / image_edit / speech / transcription /
-// rerank / responses / moderation / token_counter / completion_cost.
+// completion / text_completion / embedding / image_generation / image_edit / speech /
+// transcription / rerank / responses / moderation / create_file / create_batch /
+// token_counter / completion_cost.
 
 var (
 	defaultMu     sync.RWMutex
@@ -48,6 +52,11 @@ func packageClient(extra ...Option) *Client {
 // Completion is LiteLLM completion().
 func Completion(ctx context.Context, req *chat.Request, opts ...Option) (*chat.Response, error) {
 	return packageClient(opts...).ChatCompletion(ctx, req)
+}
+
+// TextCompletion is LiteLLM text_completion().
+func TextCompletion(ctx context.Context, req *text.Request, opts ...Option) (*text.Response, error) {
+	return packageClient(opts...).TextCompletion(ctx, req)
 }
 
 // CompletionStream is LiteLLM completion(..., stream=True).
@@ -113,4 +122,49 @@ func DeleteResponse(ctx context.Context, responseID string, opts ...Option) erro
 // CancelResponse cancels an in-progress Responses object.
 func CancelResponse(ctx context.Context, responseID string, opts ...Option) (*responses.Response, error) {
 	return packageClient(opts...).CancelResponse(ctx, responseID)
+}
+
+// CreateFile is LiteLLM create_file().
+func CreateFile(ctx context.Context, req *files.CreateRequest, opts ...Option) (*files.Object, error) {
+	return packageClient(opts...).CreateFile(ctx, req)
+}
+
+// GetFile fetches file metadata.
+func GetFile(ctx context.Context, fileID string, opts ...Option) (*files.Object, error) {
+	return packageClient(opts...).GetFile(ctx, fileID)
+}
+
+// DeleteFile deletes a file.
+func DeleteFile(ctx context.Context, fileID string, opts ...Option) error {
+	return packageClient(opts...).DeleteFile(ctx, fileID)
+}
+
+// ListFiles lists files.
+func ListFiles(ctx context.Context, purpose string, opts ...Option) (*files.ListResponse, error) {
+	return packageClient(opts...).ListFiles(ctx, purpose)
+}
+
+// GetFileContent downloads file content.
+func GetFileContent(ctx context.Context, fileID string, opts ...Option) ([]byte, error) {
+	return packageClient(opts...).GetFileContent(ctx, fileID)
+}
+
+// CreateBatch is LiteLLM create_batch().
+func CreateBatch(ctx context.Context, req *batches.CreateRequest, opts ...Option) (*batches.Batch, error) {
+	return packageClient(opts...).CreateBatch(ctx, req)
+}
+
+// RetrieveBatch is LiteLLM retrieve_batch().
+func RetrieveBatch(ctx context.Context, batchID string, opts ...Option) (*batches.Batch, error) {
+	return packageClient(opts...).RetrieveBatch(ctx, batchID)
+}
+
+// CancelBatch is LiteLLM cancel_batch().
+func CancelBatch(ctx context.Context, batchID string, opts ...Option) (*batches.Batch, error) {
+	return packageClient(opts...).CancelBatch(ctx, batchID)
+}
+
+// ListBatches is LiteLLM list_batches().
+func ListBatches(ctx context.Context, limit int, opts ...Option) ([]batches.Batch, error) {
+	return packageClient(opts...).ListBatches(ctx, limit)
 }

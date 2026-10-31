@@ -33,6 +33,18 @@ var known = map[string]Defaults{
 		BaseURL: "https://api.mistral.ai/v1",
 		EnvKey:  "MISTRAL_API_KEY",
 	},
+	"openrouter": {
+		BaseURL: "https://openrouter.ai/api/v1",
+		EnvKey:  "OPENROUTER_API_KEY",
+	},
+	"xai": {
+		BaseURL: "https://api.x.ai/v1",
+		EnvKey:  "XAI_API_KEY",
+	},
+	"fireworks": {
+		BaseURL: "https://api.fireworks.ai/inference/v1",
+		EnvKey:  "FIREWORKS_API_KEY",
+	},
 	"openai-compatible": {
 		BaseURL: "",
 		EnvKey:  "OPENAI_API_KEY",
