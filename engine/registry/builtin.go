@@ -7,7 +7,9 @@ import (
 	"github.com/icosmos-space/llmatrix/engine/provider"
 	"github.com/icosmos-space/llmatrix/engine/providers/anthropic"
 	"github.com/icosmos-space/llmatrix/engine/providers/azure"
+	"github.com/icosmos-space/llmatrix/engine/providers/bedrock"
 	"github.com/icosmos-space/llmatrix/engine/providers/cohere"
+	"github.com/icosmos-space/llmatrix/engine/providers/deepinfra"
 	"github.com/icosmos-space/llmatrix/engine/providers/deepseek"
 	"github.com/icosmos-space/llmatrix/engine/providers/fireworks"
 	"github.com/icosmos-space/llmatrix/engine/providers/gemini"
@@ -32,6 +34,11 @@ type ProviderConfig struct {
 	HTTPClient   *http.Client
 	Organization string
 	ExtraHeaders map[string]string
+	// AWS credentials / region for Bedrock (optional; falls back to AWS_* env).
+	AWSAccessKeyID     string
+	AWSSecretAccessKey string
+	AWSSessionToken    string
+	AWSRegion          string
 }
 
 func applyCompatExtras(p *compat.Provider, cfg ProviderConfig) {
@@ -78,6 +85,17 @@ func NewProvider(cfg ProviderConfig) (provider.Provider, error) {
 		return finishCompat(perplexity.New(cfg.APIKey, perplexity.WithBaseURL(cfg.BaseURL)), cfg), nil
 	case "cohere":
 		return finishCompat(cohere.New(cfg.APIKey, cohere.WithBaseURL(cfg.BaseURL)), cfg), nil
+	case "deepinfra":
+		return finishCompat(deepinfra.New(cfg.APIKey, deepinfra.WithBaseURL(cfg.BaseURL)), cfg), nil
+	case "bedrock":
+		opts := []bedrock.Option{
+			bedrock.WithRegion(cfg.AWSRegion),
+			bedrock.WithCredentials(cfg.AWSAccessKeyID, cfg.AWSSecretAccessKey, cfg.AWSSessionToken),
+		}
+		if cfg.HTTPClient != nil {
+			opts = append(opts, bedrock.WithHTTPClient(cfg.HTTPClient))
+		}
+		return bedrock.New(opts...), nil
 	case "litellm_proxy", "litellm-proxy":
 		return finishCompat(litellmproxy.New(cfg.APIKey, litellmproxy.WithBaseURL(cfg.BaseURL)), cfg), nil
 	case "ollama":

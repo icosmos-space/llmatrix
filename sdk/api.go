@@ -10,7 +10,9 @@ import (
 	"github.com/icosmos-space/llmatrix/sdk/chat"
 	"github.com/icosmos-space/llmatrix/sdk/embedding"
 	"github.com/icosmos-space/llmatrix/sdk/files"
+	"github.com/icosmos-space/llmatrix/sdk/finetuning"
 	"github.com/icosmos-space/llmatrix/sdk/image"
+	"github.com/icosmos-space/llmatrix/sdk/models"
 	"github.com/icosmos-space/llmatrix/sdk/moderation"
 	"github.com/icosmos-space/llmatrix/sdk/rerank"
 	"github.com/icosmos-space/llmatrix/sdk/responses"
@@ -223,4 +225,29 @@ func CreateRun(ctx context.Context, threadID string, req *assistants.RunCreateRe
 // GetRun fetches a run.
 func GetRun(ctx context.Context, threadID, runID string, opts ...Option) (*assistants.Run, error) {
 	return packageClient(opts...).GetRun(ctx, threadID, runID)
+}
+
+// CreateFineTuningJob is LiteLLM create_fine_tuning_job().
+func CreateFineTuningJob(ctx context.Context, req *finetuning.CreateJobRequest, opts ...Option) (*finetuning.Job, error) {
+	return packageClient(opts...).CreateFineTuningJob(ctx, req)
+}
+
+// RetrieveFineTuningJob fetches a fine-tuning job.
+func RetrieveFineTuningJob(ctx context.Context, jobID string, opts ...Option) (*finetuning.Job, error) {
+	return packageClient(opts...).RetrieveFineTuningJob(ctx, jobID)
+}
+
+// ListFineTuningJobs lists fine-tuning jobs.
+func ListFineTuningJobs(ctx context.Context, after string, limit int, opts ...Option) (*finetuning.JobList, error) {
+	return packageClient(opts...).ListFineTuningJobs(ctx, after, limit)
+}
+
+// CancelFineTuningJob cancels a fine-tuning job.
+func CancelFineTuningJob(ctx context.Context, jobID string, opts ...Option) (*finetuning.Job, error) {
+	return packageClient(opts...).CancelFineTuningJob(ctx, jobID)
+}
+
+// ListModels is LiteLLM get_model_list() / OpenAI GET /models.
+func ListModels(ctx context.Context, opts ...Option) (*models.ListResponse, error) {
+	return packageClient(opts...).ListModels(ctx)
 }

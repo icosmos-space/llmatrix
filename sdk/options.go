@@ -159,3 +159,17 @@ func WithRedisCache(addr string, ttl time.Duration, opts ...cache.RedisOption) O
 		cfg.CacheTTL = ttl
 	}
 }
+
+// WithAWSCredentials sets static AWS credentials for Bedrock.
+func WithAWSCredentials(accessKeyID, secretAccessKey, sessionToken string) Option {
+	return func(c *Config) {
+		c.AWSAccessKeyID = accessKeyID
+		c.AWSSecretAccessKey = secretAccessKey
+		c.AWSSessionToken = sessionToken
+	}
+}
+
+// WithAWSRegion sets the AWS region for Bedrock (default us-east-1 / AWS_REGION).
+func WithAWSRegion(region string) Option {
+	return func(c *Config) { c.AWSRegion = region }
+}

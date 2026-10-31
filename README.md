@@ -44,12 +44,14 @@ LLMatrix abstracts these differences behind a unified Go interface.
 | Fireworks | Yes | Yes | Yes | Yes |
 | Perplexity | Yes | Yes | Yes | Yes |
 | Cohere | Yes | Yes | Yes | Yes |
+| DeepInfra | Yes | Yes | Yes | Yes |
 | LiteLLM Proxy | Yes | Yes | Yes | Yes |
 | Ollama | Yes | Yes | Yes | Yes |
 | OpenAI-compatible APIs | Yes | Yes | Yes | Yes |
 | Anthropic | Yes | Yes | Yes | — |
 | Google Gemini | Yes | Yes | Yes | Yes |
 | Azure OpenAI | Yes | Yes | Yes | Yes |
+| Amazon Bedrock | Yes | — | Yes | — |
 
 > Provider support is under active development. Check the project roadmap for implementation status.
 

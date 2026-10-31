@@ -61,6 +61,8 @@ func (p *Provider) Info() provider.Info {
 		display = "Perplexity"
 	case "cohere":
 		display = "Cohere"
+	case "deepinfra":
+		display = "DeepInfra"
 	}
 	caps := provider.Capabilities{
 		Chat: true, Streaming: true, Tools: true, Embeddings: true,
@@ -92,7 +94,7 @@ func (p *Provider) Info() provider.Info {
 		caps.Files = true
 		caps.Batches = true
 		caps.Assistants = true
-	case "deepseek", "groq", "together", "mistral", "openrouter", "xai", "fireworks", "perplexity", "cohere":
+	case "deepseek", "groq", "together", "mistral", "openrouter", "xai", "fireworks", "perplexity", "cohere", "deepinfra":
 		// chat-focused OpenAI-compatible APIs
 	case "ollama":
 		// chat + embeddings typically

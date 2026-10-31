@@ -57,6 +57,10 @@ var known = map[string]Defaults{
 		BaseURL: "https://api.cohere.ai/compatibility/v1",
 		EnvKey:  "COHERE_API_KEY",
 	},
+	"deepinfra": {
+		BaseURL: "https://api.deepinfra.com/v1/openai",
+		EnvKey:  "DEEPINFRA_API_KEY",
+	},
 	"openai-compatible": {
 		BaseURL: "",
 		EnvKey:  "OPENAI_API_KEY",

@@ -44,4 +44,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Redis cache (`WithRedisCache`, stdlib RESP).
 - Assistants/Threads/Runs helpers (`CreateAssistants`, `CreateThread`, `AddMessage`, `CreateRun`, …).
 - `ImageVariation` (`/images/variations`).
+- Fine-tuning jobs: `CreateFineTuningJob` / `RetrieveFineTuningJob` / `ListFineTuningJobs` / `CancelFineTuningJob`.
+- `ListModels` (OpenAI `GET /models`).
+- Amazon Bedrock Converse chat provider (`bedrock/<model-id>`) with SigV4 signing.
+- DeepInfra OpenAI-compatible provider (`deepinfra/<model>`).
 

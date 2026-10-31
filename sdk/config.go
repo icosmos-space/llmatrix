@@ -29,6 +29,11 @@ type Config struct {
 	ExtraHeaders    map[string]string
 	DropParams      bool // LiteLLM drop_params: strip unsupported OpenAI params
 	UseLiteLLMProxy bool // route all calls through litellm_proxy provider
+	// AWS fields for Bedrock (optional; env AWS_* used when empty).
+	AWSAccessKeyID     string
+	AWSSecretAccessKey string
+	AWSSessionToken    string
+	AWSRegion          string
 }
 
 func defaultConfig() Config {

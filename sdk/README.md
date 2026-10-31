@@ -24,6 +24,8 @@ Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one
 | `litellm_proxy/` | `litellm_proxy/<model>` or `WithUseLiteLLMProxy(true)` |
 | assistants / threads / runs | `CreateAssistants` / `CreateThread` / `AddMessage` / `CreateRun` / … |
 | image variations | `sdk.ImageVariation` |
+| `create_fine_tuning_job` / fine-tune | `CreateFineTuningJob` / `RetrieveFineTuningJob` / `ListFineTuningJobs` / `CancelFineTuningJob` |
+| `get_model_list` / `GET /models` | `sdk.ListModels` / `Client.ListModels` |
 | `text_completion(..., stream=True)` | `sdk.TextCompletionStream` |
 | `supports_function_calling` / `supports_vision` | `SupportsFunctionCalling` / `SupportsVision` |
 | `get_supported_openai_params` | `GetSupportedOpenAIParams` |
@@ -56,6 +58,8 @@ Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one
 | Fireworks | `fireworks/<model>` | `FIREWORKS_API_KEY` |
 | Perplexity | `perplexity/<model>` | `PERPLEXITYAI_API_KEY` |
 | Cohere | `cohere/<model>` | `COHERE_API_KEY` |
+| DeepInfra | `deepinfra/<model>` | `DEEPINFRA_API_KEY` |
+| Amazon Bedrock | `bedrock/<model-id>` + `WithAWSCredentials` / `WithAWSRegion` | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` / `AWS_REGION` |
 | LiteLLM Proxy | `litellm_proxy/<model>` | `LITELLM_PROXY_API_KEY` + `LITELLM_PROXY_API_BASE` |
 | Generic | `openai-compatible/...` + `WithBaseURL` | `OPENAI_API_KEY` |
 
