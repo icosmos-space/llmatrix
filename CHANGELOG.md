@@ -11,3 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial Go workspace layout with `sdk`, `engine`, and `proxy` modules.
 - Scaffolding for providers, protocol adapters, proxy service, docs, and CI workflows.
+- Phase 1 LiteLLM-style SDK: model parsing (`provider/model`), chat / stream / embeddings
+  via OpenAI-compatible HTTP for OpenAI, DeepSeek, and Ollama.
+

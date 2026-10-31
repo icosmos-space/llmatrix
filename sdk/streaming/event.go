@@ -11,8 +11,9 @@ const (
 
 // Event is a single streaming payload.
 type Event struct {
-	Type    EventType `json:"type"`
-	Delta   string    `json:"delta,omitempty"`
-	Error   string    `json:"error,omitempty"`
-	RawJSON []byte    `json:"-"`
+	Type         EventType `json:"type"`
+	Delta        string    `json:"delta,omitempty"`
+	FinishReason string    `json:"finish_reason,omitempty"`
+	Error        string    `json:"error,omitempty"`
+	RawJSON      []byte    `json:"-"`
 }

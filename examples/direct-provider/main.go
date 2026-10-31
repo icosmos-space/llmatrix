@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/icosmos-space/llmatrix/engine/engine"
 	"github.com/icosmos-space/llmatrix/engine/providers/openai"
@@ -14,13 +15,13 @@ import (
 // Cross-module example: call a provider through Engine directly.
 func main() {
 	reg := registry.New()
-	if err := reg.Register(&openai.Provider{APIKey: "YOUR_API_KEY"}); err != nil {
+	if err := reg.Register(openai.New(os.Getenv("OPENAI_API_KEY"))); err != nil {
 		log.Fatal(err)
 	}
 
 	eng := engine.New(reg)
 	resp, err := eng.Executor().ChatCompletion(context.Background(), "openai", &types.ChatRequest{
-		Model: "gpt-4o",
+		Model: "gpt-4o-mini",
 		Messages: []types.Message{
 			{Role: types.RoleUser, Content: "Hello from examples/direct-provider"},
 		},
@@ -28,5 +29,5 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(resp)
+	fmt.Println(resp.Choices[0].Message.Content)
 }

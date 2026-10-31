@@ -1,18 +1,30 @@
 package openaicompatible
 
 import (
-	"context"
+	"net/http"
 
-	"github.com/icosmos-space/llmatrix/engine/errors"
 	"github.com/icosmos-space/llmatrix/engine/provider"
-	"github.com/icosmos-space/llmatrix/engine/types"
 )
 
-// Provider talks to any OpenAI-compatible HTTP API.
+// Provider talks to any OpenAI-compatible HTTP API
+// (OpenAI, DeepSeek, Ollama, Azure-compatible gateways, etc.).
 type Provider struct {
-	Name    string
-	APIKey  string
-	BaseURL string
+	Name       string
+	APIKey     string
+	BaseURL    string
+	HTTPClient *http.Client
+}
+
+// New constructs an OpenAI-compatible provider with defaults applied.
+func New(name, apiKey, baseURL string) *Provider {
+	if name == "" {
+		name = "openai-compatible"
+	}
+	return &Provider{
+		Name:    name,
+		APIKey:  apiKey,
+		BaseURL: baseURL,
+	}
 }
 
 // Info implements provider.Provider.
@@ -21,25 +33,20 @@ func (p *Provider) Info() provider.Info {
 	if name == "" {
 		name = "openai-compatible"
 	}
+	display := name
+	switch name {
+	case "openai":
+		display = "OpenAI"
+	case "deepseek":
+		display = "DeepSeek"
+	case "ollama":
+		display = "Ollama"
+	}
 	return provider.Info{
 		Name:        name,
-		DisplayName: name,
+		DisplayName: display,
 		Capabilities: provider.Capabilities{
 			Chat: true, Streaming: true, Tools: true, Embeddings: true,
 		},
 	}
-}
-
-// ChatCompletion implements provider.ChatProvider.
-func (p *Provider) ChatCompletion(ctx context.Context, req *types.ChatRequest) (*types.ChatResponse, error) {
-	_ = ctx
-	_ = req
-	return nil, errors.Wrap(errors.KindInternal, p.Info().Name, "not implemented", nil)
-}
-
-// Embeddings implements provider.EmbeddingProvider.
-func (p *Provider) Embeddings(ctx context.Context, req *types.EmbeddingRequest) (*types.EmbeddingResponse, error) {
-	_ = ctx
-	_ = req
-	return nil, errors.Wrap(errors.KindInternal, p.Info().Name, "not implemented", nil)
 }

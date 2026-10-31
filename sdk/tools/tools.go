@@ -16,6 +16,7 @@ type Function struct {
 // Call is a model-requested tool invocation.
 type Call struct {
 	ID        string `json:"id,omitempty"`
+	Type      string `json:"type,omitempty"`
 	Name      string `json:"name"`
 	Arguments string `json:"arguments"`
 }

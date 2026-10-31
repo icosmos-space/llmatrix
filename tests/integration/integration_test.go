@@ -9,7 +9,7 @@ import (
 
 func TestRegistryRegistersOpenAI(t *testing.T) {
 	reg := registry.New()
-	if err := reg.Register(&openai.Provider{}); err != nil {
+	if err := reg.Register(openai.New("")); err != nil {
 		t.Fatal(err)
 	}
 	if _, ok := reg.Get("openai"); !ok {

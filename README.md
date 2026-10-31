@@ -34,12 +34,12 @@ LLMatrix abstracts these differences behind a unified Go interface.
 
 | Provider | Chat Completion | Streaming | Tool Calling | Embeddings |
 |---|---|---|---|---|
-| OpenAI | Planned | Planned | Planned | Planned |
+| OpenAI | Yes | Yes | Partial | Yes |
+| DeepSeek | Yes | Yes | Partial | Yes |
+| Ollama | Yes | Yes | Partial | Yes |
+| OpenAI-compatible APIs | Yes | Yes | Partial | Yes |
 | Anthropic | Planned | Planned | Planned | Planned |
 | Google Gemini | Planned | Planned | Planned | Planned |
-| DeepSeek | Planned | Planned | Planned | Planned |
-| Ollama | Planned | Planned | Planned | Planned |
-| OpenAI-compatible APIs | Planned | Planned | Planned | Planned |
 
 > Provider support is under active development. Check the project roadmap for implementation status.
 
@@ -101,7 +101,7 @@ func main() {
 }
 ```
 
-> The API above illustrates the intended interface. Methods currently return `ErrNotImplemented` until providers are wired.
+> Phase 1 supports OpenAI / DeepSeek / Ollama (and any OpenAI-compatible base URL). Anthropic / Gemini come next.
 
 ## Architecture
 
@@ -137,21 +137,21 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) for details.
 
 ### Phase 1 — Core SDK
 
-- [ ] Unified client interface
-- [ ] Provider adapter architecture
-- [ ] OpenAI-compatible API support
-- [ ] Chat completion
-- [ ] Streaming responses
-- [ ] Context cancellation and timeout
-- [ ] Unified error handling
+- [x] Unified client interface
+- [x] Provider adapter architecture
+- [x] OpenAI-compatible API support
+- [x] Chat completion
+- [x] Streaming responses
+- [x] Context cancellation and timeout
+- [x] Unified error handling (HTTP status → engine error kinds)
 
 ### Phase 2 — Provider Ecosystem
 
-- [ ] OpenAI
+- [x] OpenAI
 - [ ] Anthropic
 - [ ] Google Gemini
-- [ ] DeepSeek
-- [ ] Ollama
+- [x] DeepSeek
+- [x] Ollama
 - [ ] Additional providers
 
 ### Phase 3 — Advanced Features

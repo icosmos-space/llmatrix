@@ -16,8 +16,9 @@ type Usage struct {
 
 // Response is a chat completion response.
 type Response struct {
-	ID      string   `json:"id,omitempty"`
-	Model   string   `json:"model,omitempty"`
-	Choices []Choice `json:"choices"`
-	Usage   Usage    `json:"usage"`
+	ID       string   `json:"id,omitempty"`
+	Model    string   `json:"model,omitempty"`
+	Provider string   `json:"provider,omitempty"`
+	Choices  []Choice `json:"choices"`
+	Usage    Usage    `json:"usage"`
 }

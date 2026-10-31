@@ -20,7 +20,8 @@ type Usage struct {
 
 // Response is an embedding response.
 type Response struct {
-	Model string `json:"model,omitempty"`
-	Data  []Item `json:"data"`
-	Usage Usage  `json:"usage"`
+	Model    string `json:"model,omitempty"`
+	Provider string `json:"provider,omitempty"`
+	Data     []Item `json:"data"`
+	Usage    Usage  `json:"usage"`
 }

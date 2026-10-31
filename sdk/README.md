@@ -1,9 +1,15 @@
 # LLMatrix SDK
 
-Public Go client for LLMatrix.
+Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one API, multiple providers.
 
-Use this module to call providers directly through the Engine, or to talk to a
-deployed LLMatrix Proxy with the same request/response shapes.
+Phase 1 providers (OpenAI-compatible HTTP):
+
+| Provider | Model example | Env key |
+|---|---|---|
+| OpenAI | `openai/gpt-4o-mini` | `OPENAI_API_KEY` |
+| DeepSeek | `deepseek/deepseek-chat` | `DEEPSEEK_API_KEY` |
+| Ollama | `ollama/llama3` | (optional) |
+| Generic | `openai-compatible/...` + `WithBaseURL` | `OPENAI_API_KEY` |
 
 ## Install
 
@@ -11,17 +17,32 @@ deployed LLMatrix Proxy with the same request/response shapes.
 go get github.com/icosmos-space/llmatrix/sdk
 ```
 
-## Packages
+## Quick start
 
-| Package | Role |
-|---|---|
-| `sdk` | Client entry point, options, config, errors |
-| `sdk/chat` | Chat completion helpers |
-| `sdk/embedding` | Embedding helpers |
-| `sdk/streaming` | Stream event types |
-| `sdk/tools` | Tool / function-calling helpers |
-| `sdk/proxy` | Client for LLMatrix Proxy |
+```go
+client := sdk.NewClient(
+    sdk.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
+    sdk.WithModel("openai/gpt-4o-mini"),
+)
 
-## Examples
+resp, err := client.ChatCompletion(ctx, &chat.Request{
+    Messages: []chat.Message{
+        {Role: "user", Content: "Hello!"},
+    },
+})
+```
 
-See `sdk/examples/` for direct, proxy, streaming, and tools samples.
+Streaming:
+
+```go
+stream, err := client.ChatCompletionStream(ctx, &chat.Request{Messages: msgs})
+for stream.Next(ctx) {
+    if ev := stream.Event(); ev.Type == streaming.EventTypeDelta {
+        fmt.Print(ev.Delta)
+    }
+}
+```
+
+## Architecture note
+
+SDK depends on `engine` for provider adapters so Proxy can reuse the same implementations later.

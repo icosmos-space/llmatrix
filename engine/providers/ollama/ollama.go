@@ -1,39 +1,37 @@
 package ollama
 
 import (
-	"context"
+	"net/http"
 
-	"github.com/icosmos-space/llmatrix/engine/errors"
-	"github.com/icosmos-space/llmatrix/engine/provider"
-	"github.com/icosmos-space/llmatrix/engine/types"
+	compat "github.com/icosmos-space/llmatrix/engine/providers/openaicompatible"
 )
 
-// Provider implements the Ollama local API.
-type Provider struct {
-	BaseURL string
-}
+// Provider implements the Ollama local OpenAI-compatible API.
+type Provider = compat.Provider
 
-// Info implements provider.Provider.
-func (p *Provider) Info() provider.Info {
-	return provider.Info{
-		Name:        "ollama",
-		DisplayName: "Ollama",
-		Capabilities: provider.Capabilities{
-			Chat: true, Streaming: true, Tools: true, Embeddings: true,
-		},
+// New creates an Ollama provider. API key is optional.
+func New(opts ...Option) *Provider {
+	p := compat.New("ollama", "", "")
+	for _, opt := range opts {
+		opt(p)
 	}
+	return p
 }
 
-// ChatCompletion implements provider.ChatProvider.
-func (p *Provider) ChatCompletion(ctx context.Context, req *types.ChatRequest) (*types.ChatResponse, error) {
-	_ = ctx
-	_ = req
-	return nil, errors.Wrap(errors.KindInternal, "ollama", "not implemented", nil)
+// Option configures an Ollama provider.
+type Option func(*Provider)
+
+// WithBaseURL overrides the API base URL (default http://localhost:11434/v1).
+func WithBaseURL(url string) Option {
+	return func(p *Provider) { p.BaseURL = url }
 }
 
-// Embeddings implements provider.EmbeddingProvider.
-func (p *Provider) Embeddings(ctx context.Context, req *types.EmbeddingRequest) (*types.EmbeddingResponse, error) {
-	_ = ctx
-	_ = req
-	return nil, errors.Wrap(errors.KindInternal, "ollama", "not implemented", nil)
+// WithHTTPClient sets a custom HTTP client.
+func WithHTTPClient(c *http.Client) Option {
+	return func(p *Provider) { p.HTTPClient = c }
+}
+
+// WithAPIKey sets an optional API key for authenticated Ollama gateways.
+func WithAPIKey(key string) Option {
+	return func(p *Provider) { p.APIKey = key }
 }
