@@ -9,10 +9,12 @@ import (
 // Provider talks to any OpenAI-compatible HTTP API
 // (OpenAI, DeepSeek, Ollama, Azure-compatible gateways, etc.).
 type Provider struct {
-	Name       string
-	APIKey     string
-	BaseURL    string
-	HTTPClient *http.Client
+	Name         string
+	APIKey       string
+	BaseURL      string
+	HTTPClient   *http.Client
+	Organization string
+	ExtraHeaders map[string]string
 }
 
 // New constructs an OpenAI-compatible provider with defaults applied.

@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	engineerrors "github.com/icosmos-space/llmatrix/engine/errors"
 	"github.com/icosmos-space/llmatrix/engine/model"
 	"github.com/icosmos-space/llmatrix/engine/provider"
 	"github.com/icosmos-space/llmatrix/engine/types"
+	"github.com/icosmos-space/llmatrix/sdk/streaming"
 	"github.com/icosmos-space/llmatrix/sdk/text"
 )
 
@@ -21,10 +23,9 @@ func (c *Client) TextCompletion(ctx context.Context, req *text.Request) (*text.R
 	}
 	modelKey := c.cacheModelKey(modelName)
 	if c.cacheEnabled(req.Caching) {
-		if v, ok := c.cacheGet("text", modelKey, req); ok {
-			if cached, ok := v.(*text.Response); ok {
-				return cached, nil
-			}
+		var cached text.Response
+		if c.cacheGet("text", modelKey, req, &cached) {
+			return &cached, nil
 		}
 	}
 	out, err := c.withCandidates(ctx, "text_completion", modelName, func(ctx context.Context, ref model.Ref, p provider.Provider) (types.Usage, any, error) {
@@ -46,4 +47,45 @@ func (c *Client) TextCompletion(ctx context.Context, req *text.Request) (*text.R
 		c.cacheSet("text", modelKey, req, resp)
 	}
 	return resp, nil
+}
+
+// TextCompletionStream streams a legacy text completion.
+func (c *Client) TextCompletionStream(ctx context.Context, req *text.Request) (streaming.Stream, error) {
+	if req == nil {
+		return nil, ErrInvalidRequest
+	}
+	modelName := req.Model
+	if modelName == "" {
+		modelName = "openai/gpt-3.5-turbo-instruct"
+	}
+	candidates := c.candidates(modelName)
+	if len(candidates) == 0 {
+		return nil, fmt.Errorf("%w: model is required", ErrInvalidConfig)
+	}
+	primaryProvider := candidates[0].Provider
+	var last error
+	for i, ref := range candidates {
+		p, err := c.newProvider(ref, ref.Provider == primaryProvider)
+		if err != nil {
+			last = MapError(err)
+			continue
+		}
+		sp, ok := p.(provider.TextCompletionStreamProvider)
+		if !ok {
+			last = fmt.Errorf("%w: provider %q does not support text completion stream", ErrUnsupported, ref.Provider)
+			continue
+		}
+		engineReq := toEngineTextRequest(req, ref.Model)
+		engineReq.Stream = true
+		s, err := sp.TextCompletionStream(ctx, engineReq)
+		if err == nil {
+			return wrapEngineStream(s), nil
+		}
+		last = MapError(err)
+		if i < len(candidates)-1 && engineerrors.IsFallbackable(err) {
+			continue
+		}
+		return nil, last
+	}
+	return nil, last
 }

@@ -25,7 +25,13 @@ Target: cover the LiteLLM **Python SDK** surface (not the Proxy gateway).
 | `responses` | `sdk.Responses` (OpenAI native; others bridged via chat) |
 | streaming responses | `sdk.ResponsesStream` |
 | get/delete/cancel responses | `sdk.GetResponse` / `DeleteResponse` / `CancelResponse` |
-| `Cache()` | `WithMemoryCache` + request `Caching` |
+| `Cache()` | `WithMemoryCache` / `WithDiskCache` + request `Caching` |
+| `supports_function_calling` | `sdk.SupportsFunctionCalling` |
+| `supports_vision` | `sdk.SupportsVision` |
+| `supports_parallel_function_calling` | `sdk.SupportsParallelFunctionCalling` |
+| `get_supported_openai_params` | `sdk.GetSupportedOpenAIParams` |
+| `get_model_info` | `sdk.GetModelInfo` |
+| `drop_params` | `WithDropParams(true)` |
 | `Router` | `sdk.NewRouter` |
 | callbacks | `WithSuccessCallback` / `WithFailureCallback` |
 | exception mapping | `MapError` → `APIError` |

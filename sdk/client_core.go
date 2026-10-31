@@ -51,9 +51,11 @@ func (c *Client) candidates(requestModel string) []model.Ref {
 
 func (c *Client) newProvider(ref model.Ref, shareClientCreds bool) (provider.Provider, error) {
 	cfg := registry.ProviderConfig{
-		Name:       ref.Provider,
-		HTTPClient: c.cfg.httpClient(),
-		APIVersion: c.cfg.APIVersion,
+		Name:         ref.Provider,
+		HTTPClient:   c.cfg.httpClient(),
+		APIVersion:   c.cfg.APIVersion,
+		Organization: c.cfg.Organization,
+		ExtraHeaders: c.cfg.ExtraHeaders,
 	}
 	if shareClientCreds {
 		cfg.APIKey = c.cfg.APIKey

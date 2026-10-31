@@ -20,7 +20,12 @@ Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one
 | `create_batch()` / batches | `CreateBatch` / `RetrieveBatch` / `CancelBatch` / `ListBatches` |
 | `token_counter` | `sdk.TokenCounter` / `TokenCounterMessages` |
 | `completion_cost` | `sdk.CompletionCost` / `CompletionCostFromUsage` |
-| `Cache()` + `caching=True` | `WithMemoryCache` + request `Caching` |
+| `Cache()` + `caching=True` | `WithMemoryCache` / `WithDiskCache` + request `Caching` |
+| `text_completion(..., stream=True)` | `sdk.TextCompletionStream` |
+| `supports_function_calling` / `supports_vision` | `SupportsFunctionCalling` / `SupportsVision` |
+| `get_supported_openai_params` | `GetSupportedOpenAIParams` |
+| `get_model_info` | `GetModelInfo` |
+| `drop_params` | `WithDropParams(true)` |
 | `responses()` | `sdk.Responses` / `Client.Responses` (native OpenAI; else chat bridge) |
 | streaming responses | `sdk.ResponsesStream` / `Client.ResponsesStream` |
 | get/delete/cancel responses | `GetResponse` / `DeleteResponse` / `CancelResponse` |

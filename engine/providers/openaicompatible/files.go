@@ -45,9 +45,7 @@ func (p *Provider) CreateFile(ctx context.Context, req *types.FileCreateRequest)
 		return nil, errors.Wrap(errors.KindInternal, p.Info().Name, "create request", err)
 	}
 	httpReq.Header.Set("Content-Type", w.FormDataContentType())
-	if key := p.resolvedAPIKey(); key != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+key)
-	}
+	p.applyAuthHeaders(httpReq)
 	resp, err := p.httpClient().Do(httpReq)
 	if err != nil {
 		return nil, errors.Wrap(errors.KindProvider, p.Info().Name, "http request failed", err)
@@ -116,9 +114,7 @@ func (p *Provider) GetFileContent(ctx context.Context, fileID string) ([]byte, e
 	if err != nil {
 		return nil, errors.Wrap(errors.KindInternal, p.Info().Name, "create request", err)
 	}
-	if key := p.resolvedAPIKey(); key != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+key)
-	}
+	p.applyAuthHeaders(httpReq)
 	resp, err := p.httpClient().Do(httpReq)
 	if err != nil {
 		return nil, errors.Wrap(errors.KindProvider, p.Info().Name, "http request failed", err)

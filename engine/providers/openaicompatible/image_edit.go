@@ -81,9 +81,7 @@ func (p *Provider) ImageEdit(ctx context.Context, req *types.ImageEditRequest) (
 		return nil, errors.Wrap(errors.KindInternal, p.Info().Name, "create request", err)
 	}
 	httpReq.Header.Set("Content-Type", w.FormDataContentType())
-	if key := p.resolvedAPIKey(); key != "" {
-		httpReq.Header.Set("Authorization", "Bearer "+key)
-	}
+	p.applyAuthHeaders(httpReq)
 
 	resp, err := p.httpClient().Do(httpReq)
 	if err != nil {

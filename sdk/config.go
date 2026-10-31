@@ -12,19 +12,22 @@ import (
 
 // Config holds client-level settings.
 type Config struct {
-	Provider   string
-	APIKey     string
-	Model      string
-	BaseURL    string
-	APIVersion string // Azure api-version
-	HTTPClient *http.Client
-	Timeout    time.Duration
-	Retry      retry.Policy
-	Fallbacks  []string
-	Aliases    *model.AliasMap
-	Callbacks  *callback.Bus
-	Cache      cache.Cache
-	CacheTTL   time.Duration
+	Provider     string
+	APIKey       string
+	Model        string
+	BaseURL      string
+	APIVersion   string // Azure api-version
+	HTTPClient   *http.Client
+	Timeout      time.Duration
+	Retry        retry.Policy
+	Fallbacks    []string
+	Aliases      *model.AliasMap
+	Callbacks    *callback.Bus
+	Cache        cache.Cache
+	CacheTTL     time.Duration
+	Organization string
+	ExtraHeaders map[string]string
+	DropParams   bool // LiteLLM drop_params: strip unsupported OpenAI params
 }
 
 func defaultConfig() Config {

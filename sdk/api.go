@@ -59,6 +59,11 @@ func TextCompletion(ctx context.Context, req *text.Request, opts ...Option) (*te
 	return packageClient(opts...).TextCompletion(ctx, req)
 }
 
+// TextCompletionStream is LiteLLM text_completion(..., stream=True).
+func TextCompletionStream(ctx context.Context, req *text.Request, opts ...Option) (streaming.Stream, error) {
+	return packageClient(opts...).TextCompletionStream(ctx, req)
+}
+
 // CompletionStream is LiteLLM completion(..., stream=True).
 func CompletionStream(ctx context.Context, req *chat.Request, opts ...Option) (streaming.Stream, error) {
 	return packageClient(opts...).ChatCompletionStream(ctx, req)

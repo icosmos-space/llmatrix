@@ -19,10 +19,9 @@ func (c *Client) ChatCompletion(ctx context.Context, req *chat.Request) (*chat.R
 	}
 	modelKey := c.cacheModelKey(req.Model)
 	if c.cacheEnabled(req.Caching) {
-		if v, ok := c.cacheGet("chat", modelKey, req); ok {
-			if cached, ok := v.(*chat.Response); ok {
-				return cached, nil
-			}
+		var cached chat.Response
+		if c.cacheGet("chat", modelKey, req, &cached) {
+			return &cached, nil
 		}
 	}
 	out, err := c.withCandidates(ctx, "chat", req.Model, func(ctx context.Context, ref model.Ref, p provider.Provider) (types.Usage, any, error) {
@@ -30,7 +29,11 @@ func (c *Client) ChatCompletion(ctx context.Context, req *chat.Request) (*chat.R
 		if !ok {
 			return types.Usage{}, nil, fmt.Errorf("%w: provider %q does not support chat", ErrUnsupported, ref.Provider)
 		}
-		engineReq := toEngineChatRequest(req, ref.Model)
+		callReq := req
+		if c.cfg.DropParams {
+			callReq = dropUnsupportedChatParams(req, ref)
+		}
+		engineReq := toEngineChatRequest(callReq, ref.Model)
 		engineReq.Stream = false
 		resp, err := chatProv.ChatCompletion(ctx, engineReq)
 		if err != nil {

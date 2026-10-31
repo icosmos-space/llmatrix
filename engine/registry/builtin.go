@@ -22,11 +22,22 @@ import (
 
 // ProviderConfig configures a concrete provider instance.
 type ProviderConfig struct {
-	Name       string
-	APIKey     string
-	BaseURL    string
-	APIVersion string // Azure api-version
-	HTTPClient *http.Client
+	Name         string
+	APIKey       string
+	BaseURL      string
+	APIVersion   string // Azure api-version
+	HTTPClient   *http.Client
+	Organization string
+	ExtraHeaders map[string]string
+}
+
+func applyCompatExtras(p *compat.Provider, cfg ProviderConfig) {
+	if cfg.Organization != "" {
+		p.Organization = cfg.Organization
+	}
+	if len(cfg.ExtraHeaders) > 0 {
+		p.ExtraHeaders = cfg.ExtraHeaders
+	}
 }
 
 // NewProvider builds a provider by name.
@@ -41,55 +52,65 @@ func NewProvider(cfg ProviderConfig) (provider.Provider, error) {
 		if cfg.HTTPClient != nil {
 			p.HTTPClient = cfg.HTTPClient
 		}
+		applyCompatExtras(p, cfg)
 		return p, nil
 	case "deepseek":
 		p := deepseek.New(cfg.APIKey, deepseek.WithBaseURL(cfg.BaseURL))
 		if cfg.HTTPClient != nil {
 			p.HTTPClient = cfg.HTTPClient
 		}
+		applyCompatExtras(p, cfg)
 		return p, nil
 	case "groq":
 		p := groq.New(cfg.APIKey, groq.WithBaseURL(cfg.BaseURL))
 		if cfg.HTTPClient != nil {
 			p.HTTPClient = cfg.HTTPClient
 		}
+		applyCompatExtras(p, cfg)
 		return p, nil
 	case "together":
 		p := together.New(cfg.APIKey, together.WithBaseURL(cfg.BaseURL))
 		if cfg.HTTPClient != nil {
 			p.HTTPClient = cfg.HTTPClient
 		}
+		applyCompatExtras(p, cfg)
 		return p, nil
 	case "mistral":
 		p := mistral.New(cfg.APIKey, mistral.WithBaseURL(cfg.BaseURL))
 		if cfg.HTTPClient != nil {
 			p.HTTPClient = cfg.HTTPClient
 		}
+		applyCompatExtras(p, cfg)
 		return p, nil
 	case "openrouter":
 		p := openrouter.New(cfg.APIKey, openrouter.WithBaseURL(cfg.BaseURL))
 		if cfg.HTTPClient != nil {
 			p.HTTPClient = cfg.HTTPClient
 		}
+		applyCompatExtras(p, cfg)
 		return p, nil
 	case "xai":
 		p := xai.New(cfg.APIKey, xai.WithBaseURL(cfg.BaseURL))
 		if cfg.HTTPClient != nil {
 			p.HTTPClient = cfg.HTTPClient
 		}
+		applyCompatExtras(p, cfg)
 		return p, nil
 	case "fireworks":
 		p := fireworks.New(cfg.APIKey, fireworks.WithBaseURL(cfg.BaseURL))
 		if cfg.HTTPClient != nil {
 			p.HTTPClient = cfg.HTTPClient
 		}
+		applyCompatExtras(p, cfg)
 		return p, nil
 	case "ollama":
 		opts := []ollama.Option{ollama.WithBaseURL(cfg.BaseURL), ollama.WithAPIKey(cfg.APIKey)}
 		if cfg.HTTPClient != nil {
 			opts = append(opts, ollama.WithHTTPClient(cfg.HTTPClient))
 		}
-		return ollama.New(opts...), nil
+		p := ollama.New(opts...)
+		applyCompatExtras(p, cfg)
+		return p, nil
 	case "anthropic":
 		opts := []anthropic.Option{anthropic.WithBaseURL(cfg.BaseURL)}
 		if cfg.HTTPClient != nil {
@@ -111,6 +132,7 @@ func NewProvider(cfg ProviderConfig) (provider.Provider, error) {
 	case "openai-compatible", "openaicompatible":
 		p := compat.New("openai-compatible", cfg.APIKey, cfg.BaseURL)
 		p.HTTPClient = cfg.HTTPClient
+		applyCompatExtras(p, cfg)
 		return p, nil
 	default:
 		return nil, fmt.Errorf("registry: unsupported provider %q (supported: openai, deepseek, groq, together, mistral, openrouter, xai, fireworks, ollama, anthropic, gemini, azure, openai-compatible)", name)

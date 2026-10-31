@@ -36,4 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Files + Batches: `CreateFile` / `GetFile` / `DeleteFile` / `ListFiles` / `GetFileContent`,
   `CreateBatch` / `RetrieveBatch` / `CancelBatch` / `ListBatches`.
 - OpenRouter / xAI / Fireworks OpenAI-compatible providers.
+- Disk cache (`WithDiskCache`), `TextCompletionStream`.
+- LiteLLM helpers: `SupportsFunctionCalling` / `SupportsVision` / `SupportsParallelFunctionCalling`,
+  `GetSupportedOpenAIParams`, `GetModelInfo`.
+- Client `WithOrganization`, `WithExtraHeaders`, `WithDropParams`.
 

@@ -58,10 +58,23 @@ func (p *Provider) newRequest(ctx context.Context, method, path string, body any
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
+	p.applyAuthHeaders(req)
+	return req, nil
+}
+
+func (p *Provider) applyAuthHeaders(req *http.Request) {
 	if key := p.resolvedAPIKey(); key != "" {
 		req.Header.Set("Authorization", "Bearer "+key)
 	}
-	return req, nil
+	if p.Organization != "" {
+		req.Header.Set("OpenAI-Organization", p.Organization)
+	}
+	for k, v := range p.ExtraHeaders {
+		if k == "" || v == "" {
+			continue
+		}
+		req.Header.Set(k, v)
+	}
 }
 
 func (p *Provider) doJSON(ctx context.Context, method, path string, body, dest any) error {

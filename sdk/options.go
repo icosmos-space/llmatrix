@@ -112,3 +112,37 @@ func WithMemoryCache(ttl time.Duration) Option {
 func WithCacheTTL(ttl time.Duration) Option {
 	return func(cfg *Config) { cfg.CacheTTL = ttl }
 }
+
+// WithDiskCache installs a disk-backed cache under dir (LiteLLM Cache(type="disk")).
+func WithDiskCache(dir string, ttl time.Duration) Option {
+	return func(cfg *Config) {
+		d, err := cache.NewDisk(dir, ttl)
+		if err != nil {
+			return
+		}
+		cfg.Cache = d
+		cfg.CacheTTL = ttl
+	}
+}
+
+// WithOrganization sets the OpenAI-Organization header.
+func WithOrganization(org string) Option {
+	return func(c *Config) { c.Organization = org }
+}
+
+// WithExtraHeaders merges extra HTTP headers sent to providers.
+func WithExtraHeaders(headers map[string]string) Option {
+	return func(c *Config) {
+		if c.ExtraHeaders == nil {
+			c.ExtraHeaders = map[string]string{}
+		}
+		for k, v := range headers {
+			c.ExtraHeaders[k] = v
+		}
+	}
+}
+
+// WithDropParams enables LiteLLM drop_params behavior for unsupported OpenAI fields.
+func WithDropParams(drop bool) Option {
+	return func(c *Config) { c.DropParams = drop }
+}

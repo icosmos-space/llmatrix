@@ -21,10 +21,9 @@ func (c *Client) Embeddings(ctx context.Context, req *embedding.Request) (*embed
 	}
 	modelKey := c.cacheModelKey(req.Model)
 	if c.cacheEnabled(req.Caching) {
-		if v, ok := c.cacheGet("embedding", modelKey, req); ok {
-			if cached, ok := v.(*embedding.Response); ok {
-				return cached, nil
-			}
+		var cached embedding.Response
+		if c.cacheGet("embedding", modelKey, req, &cached) {
+			return &cached, nil
 		}
 	}
 	out, err := c.withCandidates(ctx, "embedding", req.Model, func(ctx context.Context, ref model.Ref, p provider.Provider) (types.Usage, any, error) {
