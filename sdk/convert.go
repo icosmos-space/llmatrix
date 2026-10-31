@@ -13,6 +13,7 @@ func toEngineChatRequest(req *chat.Request, model string) *types.ChatRequest {
 		Temperature: req.Temperature,
 		MaxTokens:   req.MaxTokens,
 		Stream:      req.Stream,
+		ToolChoice:  req.ToolChoice,
 		Messages:    make([]types.Message, 0, len(req.Messages)),
 	}
 	for _, m := range req.Messages {

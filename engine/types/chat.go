@@ -7,6 +7,7 @@ type ChatRequest struct {
 	Temperature *float64  `json:"temperature,omitempty"`
 	MaxTokens   *int      `json:"max_tokens,omitempty"`
 	Tools       []Tool    `json:"tools,omitempty"`
+	ToolChoice  any       `json:"tool_choice,omitempty"` // "auto" | "none" | "required" | {type,function}
 	Stream      bool      `json:"stream,omitempty"`
 }
 

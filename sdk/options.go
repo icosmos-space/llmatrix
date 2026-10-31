@@ -55,3 +55,10 @@ func WithMaxRetries(n int) Option {
 		c.Retry.MaxAttempts = n
 	}
 }
+
+// WithFallback appends LiteLLM-style model refs tried when the primary model fails.
+func WithFallback(models ...string) Option {
+	return func(c *Config) {
+		c.Fallbacks = append(c.Fallbacks, models...)
+	}
+}

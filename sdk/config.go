@@ -16,6 +16,7 @@ type Config struct {
 	HTTPClient *http.Client
 	Timeout    time.Duration
 	Retry      retry.Policy
+	Fallbacks  []string // LiteLLM-style "provider/model" refs tried after primary fails
 }
 
 func defaultConfig() Config {

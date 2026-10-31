@@ -16,4 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Anthropic Messages API provider (chat + SSE stream).
 - Gemini generateContent / streamGenerateContent / embedContent providers.
 - `engine/retry` with exponential backoff; SDK applies it to chat + embeddings.
+- Tool calling for OpenAI-compatible and Anthropic (`tools` / `tool_choice` / `tool_calls`).
+- SDK `WithFallback` model chain; `engine/router` FallbackStrategy helpers.
+- Proxy `ChatService` wired to Engine providers; SDK `proxy.Client` HTTP implementation.
 

@@ -15,6 +15,25 @@ Supported providers:
 
 Non-streaming calls retry on rate limits / transient errors by default (`WithMaxRetries`, `WithRetry`).
 
+Fallback models (tried after primary fails):
+
+```go
+client := sdk.NewClient(
+    sdk.WithModel("openai/gpt-4o"),
+    sdk.WithFallback("deepseek/deepseek-chat", "ollama/llama3"),
+)
+```
+
+Tool calling:
+
+```go
+resp, err := client.ChatCompletion(ctx, &chat.Request{
+    Messages: msgs,
+    Tools:    []tools.Tool{weatherTool},
+    ToolChoice: "auto",
+})
+```
+
 ## Install
 
 ```bash

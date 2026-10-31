@@ -3,11 +3,25 @@
 HTTP proxy service that fronts the Engine with auth, routing, rate limiting,
 usage tracking, and billing.
 
-## Run (scaffold)
+## Run
 
 ```bash
+# upstream keys (same env vars as SDK)
+export OPENAI_API_KEY=...
+# optional proxy auth for clients
+export LLMATRIX_API_KEY=dev-key
+
 go run ./cmd/llmatrix-proxy
 ```
+
+OpenAI-compatible endpoints:
+
+- `POST /v1/chat/completions` — model supports `provider/model` (e.g. `openai/gpt-4o-mini`)
+- `POST /v1/embeddings`
+- `GET /v1/models`
+- `GET /healthz`
+
+Proxy delegates to Engine providers; credentials come from provider env vars.
 
 ## Layout
 

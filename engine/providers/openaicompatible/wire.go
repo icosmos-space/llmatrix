@@ -26,6 +26,7 @@ type wireChatRequest struct {
 	MaxTokens   *int          `json:"max_tokens,omitempty"`
 	Stream      bool          `json:"stream,omitempty"`
 	Tools       []wireTool    `json:"tools,omitempty"`
+	ToolChoice  any           `json:"tool_choice,omitempty"`
 }
 
 type wireTool struct {

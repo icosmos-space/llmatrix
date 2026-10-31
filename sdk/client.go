@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	engineerrors "github.com/icosmos-space/llmatrix/engine/errors"
 	"github.com/icosmos-space/llmatrix/engine/model"
 	"github.com/icosmos-space/llmatrix/engine/provider"
 	"github.com/icosmos-space/llmatrix/engine/registry"
@@ -31,57 +32,90 @@ func NewClient(opts ...Option) *Client {
 // ChatCompletion performs a non-streaming chat completion.
 // Model may be set on the request or via WithModel; LiteLLM-style
 // "provider/model" strings are supported (e.g. "anthropic/claude-sonnet-4-5").
+// Configured fallbacks are tried when the primary candidate fails with a fallbackable error.
 func (c *Client) ChatCompletion(ctx context.Context, req *chat.Request) (*chat.Response, error) {
 	if req == nil {
 		return nil, ErrInvalidRequest
 	}
-	ref, p, err := c.resolveChatProvider(req.Model)
-	if err != nil {
-		return nil, err
+	candidates := c.candidates(req.Model)
+	if len(candidates) == 0 {
+		return nil, fmt.Errorf("%w: model is required (set request.Model or WithModel)", ErrInvalidConfig)
 	}
-	chatProv, ok := p.(provider.ChatProvider)
-	if !ok {
-		return nil, fmt.Errorf("%w: provider %q does not support chat", ErrUnsupported, ref.Provider)
-	}
-	engineReq := toEngineChatRequest(req, ref.Model)
-	engineReq.Stream = false
 
-	var resp *chat.Response
-	err = retry.Do(ctx, c.cfg.Retry, func(ctx context.Context) error {
-		out, callErr := chatProv.ChatCompletion(ctx, engineReq)
-		if callErr != nil {
-			return callErr
+	primaryProvider := candidates[0].Provider
+	var last error
+	for i, ref := range candidates {
+		p, err := c.newProvider(ref, ref.Provider == primaryProvider)
+		if err != nil {
+			last = err
+			continue
 		}
-		resp = fromEngineChatResponse(out)
-		return nil
-	})
-	if err != nil {
+		chatProv, ok := p.(provider.ChatProvider)
+		if !ok {
+			last = fmt.Errorf("%w: provider %q does not support chat", ErrUnsupported, ref.Provider)
+			continue
+		}
+		engineReq := toEngineChatRequest(req, ref.Model)
+		engineReq.Stream = false
+
+		var resp *chat.Response
+		err = retry.Do(ctx, c.cfg.Retry, func(ctx context.Context) error {
+			out, callErr := chatProv.ChatCompletion(ctx, engineReq)
+			if callErr != nil {
+				return callErr
+			}
+			resp = fromEngineChatResponse(out)
+			return nil
+		})
+		if err == nil {
+			return resp, nil
+		}
+		last = err
+		if i < len(candidates)-1 && engineerrors.IsFallbackable(err) {
+			continue
+		}
 		return nil, err
 	}
-	return resp, nil
+	return nil, last
 }
 
 // ChatCompletionStream performs a streaming chat completion.
-// Streaming calls are not retried after the HTTP response starts.
+// Fallbacks apply only while establishing the stream (not mid-stream).
 func (c *Client) ChatCompletionStream(ctx context.Context, req *chat.Request) (streaming.Stream, error) {
 	if req == nil {
 		return nil, ErrInvalidRequest
 	}
-	ref, p, err := c.resolveChatProvider(req.Model)
-	if err != nil {
+	candidates := c.candidates(req.Model)
+	if len(candidates) == 0 {
+		return nil, fmt.Errorf("%w: model is required (set request.Model or WithModel)", ErrInvalidConfig)
+	}
+
+	primaryProvider := candidates[0].Provider
+	var last error
+	for i, ref := range candidates {
+		p, err := c.newProvider(ref, ref.Provider == primaryProvider)
+		if err != nil {
+			last = err
+			continue
+		}
+		streamProv, ok := p.(provider.ChatStreamProvider)
+		if !ok {
+			last = fmt.Errorf("%w: provider %q does not support streaming", ErrUnsupported, ref.Provider)
+			continue
+		}
+		engineReq := toEngineChatRequest(req, ref.Model)
+		engineReq.Stream = true
+		s, err := streamProv.ChatCompletionStream(ctx, engineReq)
+		if err == nil {
+			return wrapEngineStream(s), nil
+		}
+		last = err
+		if i < len(candidates)-1 && engineerrors.IsFallbackable(err) {
+			continue
+		}
 		return nil, err
 	}
-	streamProv, ok := p.(provider.ChatStreamProvider)
-	if !ok {
-		return nil, fmt.Errorf("%w: provider %q does not support streaming", ErrUnsupported, ref.Provider)
-	}
-	engineReq := toEngineChatRequest(req, ref.Model)
-	engineReq.Stream = true
-	s, err := streamProv.ChatCompletionStream(ctx, engineReq)
-	if err != nil {
-		return nil, err
-	}
-	return wrapEngineStream(s), nil
+	return nil, last
 }
 
 // Embeddings creates embeddings for the given input.
@@ -89,47 +123,75 @@ func (c *Client) Embeddings(ctx context.Context, req *embedding.Request) (*embed
 	if req == nil {
 		return nil, ErrInvalidRequest
 	}
-	ref, p, err := c.resolveChatProvider(req.Model)
-	if err != nil {
-		return nil, err
-	}
-	embProv, ok := p.(provider.EmbeddingProvider)
-	if !ok {
-		return nil, fmt.Errorf("%w: provider %q does not support embeddings", ErrUnsupported, ref.Provider)
+	candidates := c.candidates(req.Model)
+	if len(candidates) == 0 {
+		return nil, fmt.Errorf("%w: model is required (set request.Model or WithModel)", ErrInvalidConfig)
 	}
 
-	var resp *embedding.Response
-	err = retry.Do(ctx, c.cfg.Retry, func(ctx context.Context) error {
-		out, callErr := embProv.Embeddings(ctx, toEngineEmbeddingRequest(req, ref.Model))
-		if callErr != nil {
-			return callErr
+	primaryProvider := candidates[0].Provider
+	var last error
+	for i, ref := range candidates {
+		p, err := c.newProvider(ref, ref.Provider == primaryProvider)
+		if err != nil {
+			last = err
+			continue
 		}
-		resp = fromEngineEmbeddingResponse(out)
-		return nil
-	})
-	if err != nil {
+		embProv, ok := p.(provider.EmbeddingProvider)
+		if !ok {
+			last = fmt.Errorf("%w: provider %q does not support embeddings", ErrUnsupported, ref.Provider)
+			continue
+		}
+		var resp *embedding.Response
+		err = retry.Do(ctx, c.cfg.Retry, func(ctx context.Context) error {
+			out, callErr := embProv.Embeddings(ctx, toEngineEmbeddingRequest(req, ref.Model))
+			if callErr != nil {
+				return callErr
+			}
+			resp = fromEngineEmbeddingResponse(out)
+			return nil
+		})
+		if err == nil {
+			return resp, nil
+		}
+		last = err
+		if i < len(candidates)-1 && engineerrors.IsFallbackable(err) {
+			continue
+		}
 		return nil, err
 	}
-	return resp, nil
+	return nil, last
 }
 
-func (c *Client) resolveChatProvider(requestModel string) (model.Ref, provider.Provider, error) {
+func (c *Client) candidates(requestModel string) []model.Ref {
 	rawModel := requestModel
 	if rawModel == "" {
 		rawModel = c.cfg.Model
 	}
 	if rawModel == "" {
-		return model.Ref{}, nil, fmt.Errorf("%w: model is required (set request.Model or WithModel)", ErrInvalidConfig)
+		return nil
 	}
-	ref := model.Resolve(rawModel, c.cfg.Provider)
-	p, err := registry.NewProvider(registry.ProviderConfig{
+	primary := model.Resolve(rawModel, c.cfg.Provider)
+	out := []model.Ref{primary}
+	for _, fb := range c.cfg.Fallbacks {
+		ref := model.Resolve(fb, "")
+		if ref.Provider == primary.Provider && ref.Model == primary.Model {
+			continue
+		}
+		out = append(out, ref)
+	}
+	return out
+}
+
+// newProvider builds a provider. Shared APIKey/BaseURL are reused for candidates
+// on the same provider family; cross-provider fallbacks use env-specific credentials.
+func (c *Client) newProvider(ref model.Ref, shareClientCreds bool) (provider.Provider, error) {
+	cfg := registry.ProviderConfig{
 		Name:       ref.Provider,
-		APIKey:     c.cfg.APIKey,
-		BaseURL:    c.cfg.BaseURL,
 		HTTPClient: c.cfg.httpClient(),
-	})
-	if err != nil {
-		return ref, nil, err
 	}
-	return ref, p, nil
+	if shareClientCreds {
+		cfg.APIKey = c.cfg.APIKey
+		cfg.BaseURL = c.cfg.BaseURL
+	}
+	return registry.NewProvider(cfg)
 }

@@ -55,7 +55,7 @@ func As(err error) (*Error, bool) {
 	return nil, false
 }
 
-// IsRetryable reports whether the error is safe to retry.
+// IsRetryable reports whether the error is safe to retry against the same provider.
 func IsRetryable(err error) bool {
 	if err == nil {
 		return false
@@ -74,4 +74,17 @@ func IsRetryable(err error) bool {
 	default:
 		return false
 	}
+}
+
+// IsFallbackable reports whether another model/provider candidate should be tried.
+// Invalid requests are not fallbackable; auth / rate-limit / provider errors are.
+func IsFallbackable(err error) bool {
+	if err == nil {
+		return false
+	}
+	e, ok := As(err)
+	if !ok {
+		return true
+	}
+	return e.Kind != KindInvalidRequest
 }

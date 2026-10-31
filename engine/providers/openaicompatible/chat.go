@@ -30,6 +30,7 @@ func (p *Provider) ChatCompletion(ctx context.Context, req *types.ChatRequest) (
 		MaxTokens:   req.MaxTokens,
 		Stream:      false,
 		Tools:       toWireTools(req.Tools),
+		ToolChoice:  req.ToolChoice,
 	}
 
 	var raw wireChatResponse

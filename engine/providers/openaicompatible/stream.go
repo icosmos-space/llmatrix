@@ -32,6 +32,7 @@ func (p *Provider) ChatCompletionStream(ctx context.Context, req *types.ChatRequ
 		MaxTokens:   req.MaxTokens,
 		Stream:      true,
 		Tools:       toWireTools(req.Tools),
+		ToolChoice:  req.ToolChoice,
 	}
 
 	httpReq, err := p.newRequest(ctx, "POST", "/chat/completions", body)

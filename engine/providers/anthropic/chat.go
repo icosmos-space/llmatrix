@@ -20,16 +20,18 @@ func (p *Provider) ChatCompletion(ctx context.Context, req *types.ChatRequest) (
 	if raw.Error != nil && raw.Error.Message != "" {
 		return nil, errors.Wrap(errors.KindProvider, "anthropic", raw.Error.Message, nil)
 	}
+	msg := types.Message{
+		Role:      types.RoleAssistant,
+		Content:   contentText(raw.Content),
+		ToolCalls: contentToolCalls(raw.Content),
+	}
 	return &types.ChatResponse{
 		ID:       raw.ID,
 		Model:    firstNonEmpty(raw.Model, req.Model),
 		Provider: "anthropic",
 		Choices: []types.ChatChoice{{
-			Index: 0,
-			Message: types.Message{
-				Role:    types.RoleAssistant,
-				Content: contentText(raw.Content),
-			},
+			Index:        0,
+			Message:      msg,
 			FinishReason: mapStopReason(raw.StopReason),
 		}},
 		Usage: types.Usage{
@@ -65,6 +67,8 @@ func buildRequest(req *types.ChatRequest, stream bool) (*wireRequest, error) {
 		System:      system,
 		Temperature: req.Temperature,
 		Stream:      stream,
+		Tools:       toWireTools(req.Tools),
+		ToolChoice:  toWireToolChoice(req.ToolChoice),
 	}, nil
 }
 

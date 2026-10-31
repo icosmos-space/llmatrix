@@ -1,6 +1,10 @@
 package anthropic
 
-import "github.com/icosmos-space/llmatrix/engine/types"
+import (
+	"encoding/json"
+
+	"github.com/icosmos-space/llmatrix/engine/types"
+)
 
 type wireMessage struct {
 	Role    string        `json:"role"`
@@ -8,8 +12,19 @@ type wireMessage struct {
 }
 
 type wireContent struct {
-	Type string `json:"type"`
-	Text string `json:"text,omitempty"`
+	Type      string          `json:"type"`
+	Text      string          `json:"text,omitempty"`
+	ID        string          `json:"id,omitempty"`
+	Name      string          `json:"name,omitempty"`
+	Input     json.RawMessage `json:"input,omitempty"`
+	ToolUseID string          `json:"tool_use_id,omitempty"`
+	Content   string          `json:"content,omitempty"` // tool_result payload
+}
+
+type wireTool struct {
+	Name        string         `json:"name"`
+	Description string         `json:"description,omitempty"`
+	InputSchema map[string]any `json:"input_schema"`
 }
 
 type wireRequest struct {
@@ -19,6 +34,8 @@ type wireRequest struct {
 	System      string        `json:"system,omitempty"`
 	Temperature *float64      `json:"temperature,omitempty"`
 	Stream      bool          `json:"stream,omitempty"`
+	Tools       []wireTool    `json:"tools,omitempty"`
+	ToolChoice  any           `json:"tool_choice,omitempty"`
 }
 
 type wireResponse struct {
@@ -79,20 +96,84 @@ func splitSystem(msgs []types.Message) (system string, rest []types.Message) {
 func toWireMessages(msgs []types.Message) []wireMessage {
 	out := make([]wireMessage, 0, len(msgs))
 	for _, m := range msgs {
-		role := string(m.Role)
-		if role != "user" && role != "assistant" {
-			// Anthropic only accepts user/assistant in messages array.
-			role = "user"
+		switch m.Role {
+		case types.RoleTool:
+			out = append(out, wireMessage{
+				Role: "user",
+				Content: []wireContent{{
+					Type:      "tool_result",
+					ToolUseID: m.ToolCallID,
+					Content:   m.Content,
+				}},
+			})
+		case types.RoleAssistant:
+			blocks := make([]wireContent, 0, 1+len(m.ToolCalls))
+			if m.Content != "" {
+				blocks = append(blocks, wireContent{Type: "text", Text: m.Content})
+			}
+			for _, tc := range m.ToolCalls {
+				input := json.RawMessage(tc.Arguments)
+				if !json.Valid(input) {
+					b, _ := json.Marshal(tc.Arguments)
+					input = b
+				}
+				blocks = append(blocks, wireContent{
+					Type:  "tool_use",
+					ID:    tc.ID,
+					Name:  tc.Name,
+					Input: input,
+				})
+			}
+			if len(blocks) == 0 {
+				blocks = append(blocks, wireContent{Type: "text", Text: ""})
+			}
+			out = append(out, wireMessage{Role: "assistant", Content: blocks})
+		default:
+			out = append(out, wireMessage{
+				Role: "user",
+				Content: []wireContent{{
+					Type: "text",
+					Text: m.Content,
+				}},
+			})
 		}
-		out = append(out, wireMessage{
-			Role: role,
-			Content: []wireContent{{
-				Type: "text",
-				Text: m.Content,
-			}},
+	}
+	return out
+}
+
+func toWireTools(tools []types.Tool) []wireTool {
+	if len(tools) == 0 {
+		return nil
+	}
+	out := make([]wireTool, 0, len(tools))
+	for _, t := range tools {
+		schema := t.Function.Parameters
+		if schema == nil {
+			schema = map[string]any{"type": "object", "properties": map[string]any{}}
+		}
+		out = append(out, wireTool{
+			Name:        t.Function.Name,
+			Description: t.Function.Description,
+			InputSchema: schema,
 		})
 	}
 	return out
+}
+
+func toWireToolChoice(choice any) any {
+	if choice == nil {
+		return nil
+	}
+	if s, ok := choice.(string); ok {
+		switch s {
+		case "auto", "none", "any", "required":
+			if s == "required" {
+				return map[string]any{"type": "any"}
+			}
+			return map[string]any{"type": s}
+		}
+	}
+	return choice
 }
 
 func contentText(blocks []wireContent) string {
@@ -103,6 +184,26 @@ func contentText(blocks []wireContent) string {
 		}
 	}
 	return s
+}
+
+func contentToolCalls(blocks []wireContent) []types.ToolCall {
+	var out []types.ToolCall
+	for _, b := range blocks {
+		if b.Type != "tool_use" {
+			continue
+		}
+		args := string(b.Input)
+		if args == "" {
+			args = "{}"
+		}
+		out = append(out, types.ToolCall{
+			ID:        b.ID,
+			Type:      "function",
+			Name:      b.Name,
+			Arguments: args,
+		})
+	}
+	return out
 }
 
 func mapStopReason(reason string) string {

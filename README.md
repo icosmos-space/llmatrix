@@ -156,13 +156,14 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) for details.
 
 ### Phase 3 — Advanced Features
 
-- [ ] Tool Calling (end-to-end)
+- [x] Tool Calling (OpenAI-compatible + Anthropic)
 - [x] Embeddings (OpenAI-compatible + Gemini)
 - [ ] Model aliases
 - [x] Automatic retries
-- [ ] Fallback strategies
+- [x] Fallback strategies
 - [ ] Load balancing
 - [ ] Model routing
+- [x] Proxy → Engine chat/embeddings wiring
 
 ### Phase 4 — Developer Experience
 

@@ -19,8 +19,11 @@ func (h *Handler) Embeddings(w http.ResponseWriter, r *http.Request) {
 	}
 	resp, err := h.chat.Embed(r.Context(), &req)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotImplemented)
+		writeError(w, err)
 		return
+	}
+	if err := h.usage.Record(r.Context(), resp.Provider, resp.Model, resp.Usage); err != nil {
+		_ = err
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(resp)
