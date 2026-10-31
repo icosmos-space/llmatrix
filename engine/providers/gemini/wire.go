@@ -1,13 +1,27 @@
 package gemini
 
 import (
+	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/icosmos-space/llmatrix/engine/types"
 )
 
 type wirePart struct {
-	Text string `json:"text,omitempty"`
+	Text             string            `json:"text,omitempty"`
+	FunctionCall     *wireFunctionCall `json:"functionCall,omitempty"`
+	FunctionResponse *wireFunctionResp `json:"functionResponse,omitempty"`
+}
+
+type wireFunctionCall struct {
+	Name string          `json:"name"`
+	Args json.RawMessage `json:"args"`
+}
+
+type wireFunctionResp struct {
+	Name     string `json:"name"`
+	Response any    `json:"response"`
 }
 
 type wireContent struct {
@@ -20,10 +34,21 @@ type wireGenerationConfig struct {
 	MaxOutputTokens *int     `json:"maxOutputTokens,omitempty"`
 }
 
+type wireFunctionDecl struct {
+	Name        string         `json:"name"`
+	Description string         `json:"description,omitempty"`
+	Parameters  map[string]any `json:"parameters,omitempty"`
+}
+
+type wireTool struct {
+	FunctionDeclarations []wireFunctionDecl `json:"functionDeclarations"`
+}
+
 type wireRequest struct {
 	Contents          []wireContent         `json:"contents"`
 	SystemInstruction *wireContent          `json:"systemInstruction,omitempty"`
 	GenerationConfig  *wireGenerationConfig `json:"generationConfig,omitempty"`
+	Tools             []wireTool            `json:"tools,omitempty"`
 }
 
 type wireCandidate struct {
@@ -79,16 +104,64 @@ func splitSystem(msgs []types.Message) (system string, rest []types.Message) {
 func toWireContents(msgs []types.Message) []wireContent {
 	out := make([]wireContent, 0, len(msgs))
 	for _, m := range msgs {
-		role := "user"
-		if m.Role == types.RoleAssistant {
-			role = "model"
+		switch m.Role {
+		case types.RoleTool:
+			var resp any
+			if err := json.Unmarshal([]byte(m.Content), &resp); err != nil {
+				resp = map[string]any{"result": m.Content}
+			}
+			name := m.Name
+			if name == "" {
+				name = "tool"
+			}
+			out = append(out, wireContent{
+				Role: "user",
+				Parts: []wirePart{{
+					FunctionResponse: &wireFunctionResp{Name: name, Response: resp},
+				}},
+			})
+		case types.RoleAssistant:
+			parts := make([]wirePart, 0, 1+len(m.ToolCalls))
+			if m.Content != "" {
+				parts = append(parts, wirePart{Text: m.Content})
+			}
+			for _, tc := range m.ToolCalls {
+				args := json.RawMessage(tc.Arguments)
+				if !json.Valid(args) {
+					b, _ := json.Marshal(tc.Arguments)
+					args = b
+				}
+				parts = append(parts, wirePart{
+					FunctionCall: &wireFunctionCall{Name: tc.Name, Args: args},
+				})
+			}
+			if len(parts) == 0 {
+				parts = append(parts, wirePart{Text: ""})
+			}
+			out = append(out, wireContent{Role: "model", Parts: parts})
+		default:
+			out = append(out, wireContent{
+				Role:  "user",
+				Parts: []wirePart{{Text: m.Content}},
+			})
 		}
-		out = append(out, wireContent{
-			Role:  role,
-			Parts: []wirePart{{Text: m.Content}},
-		})
 	}
 	return out
+}
+
+func toWireTools(tools []types.Tool) []wireTool {
+	if len(tools) == 0 {
+		return nil
+	}
+	decls := make([]wireFunctionDecl, 0, len(tools))
+	for _, t := range tools {
+		decls = append(decls, wireFunctionDecl{
+			Name:        t.Function.Name,
+			Description: t.Function.Description,
+			Parameters:  t.Function.Parameters,
+		})
+	}
+	return []wireTool{{FunctionDeclarations: decls}}
 }
 
 func partsText(c wireContent) string {
@@ -99,6 +172,30 @@ func partsText(c wireContent) string {
 	return s
 }
 
+func partsToolCalls(c wireContent) []types.ToolCall {
+	var out []types.ToolCall
+	for i, p := range c.Parts {
+		if p.FunctionCall == nil {
+			continue
+		}
+		args := string(p.FunctionCall.Args)
+		if args == "" {
+			args = "{}"
+		}
+		out = append(out, types.ToolCall{
+			ID:        fmtToolID(i, p.FunctionCall.Name),
+			Type:      "function",
+			Name:      p.FunctionCall.Name,
+			Arguments: args,
+		})
+	}
+	return out
+}
+
+func fmtToolID(i int, name string) string {
+	return fmt.Sprintf("call_%s_%d", name, i)
+}
+
 func mapFinishReason(reason string) string {
 	switch reason {
 	case "STOP":
@@ -107,6 +204,8 @@ func mapFinishReason(reason string) string {
 		return "length"
 	case "SAFETY":
 		return "content_filter"
+	case "TOOL_CALLS", "FUNCTION_CALL":
+		return "tool_calls"
 	default:
 		return strings.ToLower(reason)
 	}

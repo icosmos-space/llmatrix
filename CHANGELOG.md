@@ -22,4 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LiteLLM SDK surface expansion: package-level `Completion`/`Embedding`/`ImageGeneration`/`Speech`/`Transcription`/`Rerank`,
   model aliases, callbacks, OpenAI-style `APIError`, Router load balancing, richer chat params,
   and OpenAI-compatible image/speech/transcription/rerank providers.
+- OpenAI Responses API (`sdk.Responses`) with chat-bridge for non-native providers.
+- Responses streaming (`ResponsesStream`) plus get/delete/cancel store helpers.
+- Azure OpenAI provider (`azure/<deployment>`).
+- Gemini function/tool calling.
+- Groq / Together / Mistral OpenAI-compatible providers.
+- Prompt caching: Anthropic `cache_control` content blocks + OpenAI `prompt_cache_key`.
 

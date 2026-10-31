@@ -15,14 +15,30 @@ Target: cover the LiteLLM **Python SDK** surface (not the Proxy gateway).
 | `speech` | `sdk.Speech` |
 | `transcription` | `sdk.Transcription` |
 | `rerank` | `sdk.Rerank` |
+| `responses` | `sdk.Responses` (OpenAI native; others bridged via chat) |
+| streaming responses | `sdk.ResponsesStream` |
+| get/delete/cancel responses | `sdk.GetResponse` / `DeleteResponse` / `CancelResponse` |
 | `Router` | `sdk.NewRouter` |
 | callbacks | `WithSuccessCallback` / `WithFailureCallback` |
 | exception mapping | `MapError` → `APIError` |
+| prompt caching | `chat.Message.CacheControl` / `Parts` (Anthropic); `PromptCacheKey` (OpenAI) |
 
 ```go
-sdk.Configure(sdk.WithAPIKey(os.Getenv("OPENAI_API_KEY")))
-resp, err := sdk.Completion(ctx, &chat.Request{
-    Model: "gpt-4o-mini", // alias → openai/gpt-4o-mini
-    Messages: []chat.Message{{Role: "user", Content: "Hello"}},
+resp, err := sdk.Responses(ctx, &responses.Request{
+    Model: "openai/gpt-4o-mini",
+    Input: "Tell me a short story",
 })
+fmt.Println(resp.OutputText())
+```
+
+Azure:
+
+```go
+client := sdk.NewClient(
+    sdk.WithProvider("azure"),
+    sdk.WithAPIKey(os.Getenv("AZURE_API_KEY")),
+    sdk.WithBaseURL(os.Getenv("AZURE_API_BASE")),
+    sdk.WithAPIVersion("2024-08-01-preview"),
+    sdk.WithModel("azure/my-gpt4o-deployment"),
+)
 ```

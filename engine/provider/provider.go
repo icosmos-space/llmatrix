@@ -17,6 +17,7 @@ type Capabilities struct {
 	Speech        bool
 	Transcription bool
 	Rerank        bool
+	Responses     bool
 }
 
 // Provider is the root provider identity.

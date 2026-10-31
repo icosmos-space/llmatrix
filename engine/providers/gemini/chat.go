@@ -28,16 +28,22 @@ func (p *Provider) ChatCompletion(ctx context.Context, req *types.ChatRequest) (
 		return nil, errors.Wrap(errors.KindProvider, "gemini", "empty candidates in response", nil)
 	}
 	cand := raw.Candidates[0]
+	msg := types.Message{
+		Role:      types.RoleAssistant,
+		Content:   partsText(cand.Content),
+		ToolCalls: partsToolCalls(cand.Content),
+	}
+	finish := mapFinishReason(cand.FinishReason)
+	if len(msg.ToolCalls) > 0 && finish == "stop" {
+		finish = "tool_calls"
+	}
 	out := &types.ChatResponse{
 		Model:    model,
 		Provider: "gemini",
 		Choices: []types.ChatChoice{{
-			Index: 0,
-			Message: types.Message{
-				Role:    types.RoleAssistant,
-				Content: partsText(cand.Content),
-			},
-			FinishReason: mapFinishReason(cand.FinishReason),
+			Index:        0,
+			Message:      msg,
+			FinishReason: finish,
 		}},
 	}
 	if raw.UsageMetadata != nil {
@@ -66,6 +72,7 @@ func buildRequest(req *types.ChatRequest) (*wireRequest, string, error) {
 	}
 	body := &wireRequest{
 		Contents: toWireContents(rest),
+		Tools:    toWireTools(req.Tools),
 	}
 	if system != "" {
 		body.SystemInstruction = &wireContent{Parts: []wirePart{{Text: system}}}

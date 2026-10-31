@@ -53,6 +53,7 @@ func (c *Client) newProvider(ref model.Ref, shareClientCreds bool) (provider.Pro
 	cfg := registry.ProviderConfig{
 		Name:       ref.Provider,
 		HTTPClient: c.cfg.httpClient(),
+		APIVersion: c.cfg.APIVersion,
 	}
 	if shareClientCreds {
 		cfg.APIKey = c.cfg.APIKey

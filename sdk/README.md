@@ -13,12 +13,14 @@ Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one
 | `speech()` | `sdk.Speech` / `Client.Speech` |
 | `transcription()` | `sdk.Transcription` / `Client.Transcription` |
 | `rerank()` | `sdk.Rerank` / `Client.Rerank` |
+| `responses()` | `sdk.Responses` / `Client.Responses` (native OpenAI; else chat bridge) |
+| streaming responses | `sdk.ResponsesStream` / `Client.ResponsesStream` |
+| get/delete/cancel responses | `GetResponse` / `DeleteResponse` / `CancelResponse` |
 | `Router` | `sdk.NewRouter` |
 | retries / fallbacks | `WithRetry` / `WithFallback` |
 | model aliases | built-in (`gpt-4o-mini` → `openai/gpt-4o-mini`) |
 | success/failure callbacks | `WithSuccessCallback` / `WithFailureCallback` |
 | exception mapping | `sdk.MapError` / `APIError` |
-| `responses()` | Planned |
 
 ## Providers
 
@@ -29,6 +31,10 @@ Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one
 | Ollama | `ollama/llama3` | (optional) |
 | Anthropic | `anthropic/claude-sonnet-4-5` | `ANTHROPIC_API_KEY` |
 | Gemini | `gemini/gemini-2.0-flash` | `GEMINI_API_KEY` / `GOOGLE_API_KEY` |
+| Azure OpenAI | `azure/<deployment>` + `WithBaseURL` / `WithAPIVersion` | `AZURE_API_KEY` |
+| Groq | `groq/llama-3.3-70b-versatile` | `GROQ_API_KEY` |
+| Together | `together/<model-id>` | `TOGETHER_API_KEY` |
+| Mistral | `mistral/mistral-large-latest` | `MISTRAL_API_KEY` |
 | Generic | `openai-compatible/...` + `WithBaseURL` | `OPENAI_API_KEY` |
 
 ## Quick start

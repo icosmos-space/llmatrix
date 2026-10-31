@@ -4,10 +4,16 @@ import "github.com/icosmos-space/llmatrix/engine/types"
 
 type wireMessage struct {
 	Role       string         `json:"role"`
-	Content    string         `json:"content"`
+	Content    any            `json:"content"` // string or []content parts (prompt cache)
 	Name       string         `json:"name,omitempty"`
 	ToolCallID string         `json:"tool_call_id,omitempty"`
 	ToolCalls  []wireToolCall `json:"tool_calls,omitempty"`
+}
+
+type wireContentPart struct {
+	Type         string              `json:"type"`
+	Text         string              `json:"text,omitempty"`
+	CacheControl *types.CacheControl `json:"cache_control,omitempty"`
 }
 
 type wireToolCall struct {
@@ -38,6 +44,7 @@ type wireChatRequest struct {
 	Tools             []wireTool     `json:"tools,omitempty"`
 	ToolChoice        any            `json:"tool_choice,omitempty"`
 	ParallelToolCalls *bool          `json:"parallel_tool_calls,omitempty"`
+	PromptCacheKey    string         `json:"prompt_cache_key,omitempty"`
 }
 
 type wireTool struct {
@@ -122,6 +129,7 @@ func toWireChatRequest(req *types.ChatRequest, stream bool) wireChatRequest {
 		Tools:             toWireTools(req.Tools),
 		ToolChoice:        req.ToolChoice,
 		ParallelToolCalls: req.ParallelToolCalls,
+		PromptCacheKey:    req.PromptCacheKey,
 	}
 }
 
@@ -130,7 +138,7 @@ func toWireMessages(msgs []types.Message) []wireMessage {
 	for _, m := range msgs {
 		wm := wireMessage{
 			Role:       string(m.Role),
-			Content:    m.Content,
+			Content:    wireMessageContent(m),
 			Name:       m.Name,
 			ToolCallID: m.ToolCallID,
 		}
@@ -146,6 +154,28 @@ func toWireMessages(msgs []types.Message) []wireMessage {
 		out = append(out, wm)
 	}
 	return out
+}
+
+func wireMessageContent(m types.Message) any {
+	if len(m.Parts) > 0 {
+		parts := make([]wireContentPart, 0, len(m.Parts))
+		for _, part := range m.Parts {
+			typ := part.Type
+			if typ == "" {
+				typ = "text"
+			}
+			parts = append(parts, wireContentPart{
+				Type: typ, Text: part.Text, CacheControl: part.CacheControl,
+			})
+		}
+		return parts
+	}
+	if m.CacheControl != nil {
+		return []wireContentPart{{
+			Type: "text", Text: m.Content, CacheControl: m.CacheControl,
+		}}
+	}
+	return m.Content
 }
 
 func toWireTools(tools []types.Tool) []wireTool {
@@ -169,7 +199,7 @@ func toWireTools(tools []types.Tool) []wireTool {
 func fromWireMessage(m wireMessage) types.Message {
 	msg := types.Message{
 		Role:       types.Role(m.Role),
-		Content:    m.Content,
+		Content:    contentAsString(m.Content),
 		Name:       m.Name,
 		ToolCallID: m.ToolCallID,
 	}
@@ -182,4 +212,15 @@ func fromWireMessage(m wireMessage) types.Message {
 		})
 	}
 	return msg
+}
+
+func contentAsString(v any) string {
+	switch c := v.(type) {
+	case string:
+		return c
+	case nil:
+		return ""
+	default:
+		return ""
+	}
 }

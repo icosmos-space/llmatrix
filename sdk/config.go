@@ -15,6 +15,7 @@ type Config struct {
 	APIKey     string
 	Model      string
 	BaseURL    string
+	APIVersion string // Azure api-version
 	HTTPClient *http.Client
 	Timeout    time.Duration
 	Retry      retry.Policy

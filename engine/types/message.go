@@ -17,4 +17,9 @@ type Message struct {
 	Name       string     `json:"name,omitempty"`
 	ToolCallID string     `json:"tool_call_id,omitempty"`
 	ToolCalls  []ToolCall `json:"tool_calls,omitempty"`
+	// Parts, when non-empty, is preferred over Content for providers that
+	// support multimodal / cache_control content blocks (Anthropic, etc.).
+	Parts []ContentPart `json:"parts,omitempty"`
+	// CacheControl attaches to a single text Content block when Parts is empty.
+	CacheControl *CacheControl `json:"cache_control,omitempty"`
 }

@@ -9,11 +9,12 @@ import (
 	"github.com/icosmos-space/llmatrix/sdk/embedding"
 	"github.com/icosmos-space/llmatrix/sdk/image"
 	"github.com/icosmos-space/llmatrix/sdk/rerank"
+	"github.com/icosmos-space/llmatrix/sdk/responses"
 	"github.com/icosmos-space/llmatrix/sdk/streaming"
 )
 
 // Package-level helpers mirror LiteLLM's module functions:
-// completion / embedding / image_generation / speech / transcription / rerank.
+// completion / embedding / image_generation / speech / transcription / rerank / responses.
 
 var (
 	defaultMu     sync.RWMutex
@@ -75,4 +76,29 @@ func Transcription(ctx context.Context, req *audio.TranscriptionRequest, opts ..
 // Rerank is LiteLLM rerank().
 func Rerank(ctx context.Context, req *rerank.Request, opts ...Option) (*rerank.Response, error) {
 	return packageClient(opts...).Rerank(ctx, req)
+}
+
+// Responses is LiteLLM responses().
+func Responses(ctx context.Context, req *responses.Request, opts ...Option) (*responses.Response, error) {
+	return packageClient(opts...).Responses(ctx, req)
+}
+
+// ResponsesStream is LiteLLM responses(..., stream=True).
+func ResponsesStream(ctx context.Context, req *responses.Request, opts ...Option) (streaming.Stream, error) {
+	return packageClient(opts...).ResponsesStream(ctx, req)
+}
+
+// GetResponse fetches a stored Responses object.
+func GetResponse(ctx context.Context, responseID string, opts ...Option) (*responses.Response, error) {
+	return packageClient(opts...).GetResponse(ctx, responseID)
+}
+
+// DeleteResponse deletes a stored Responses object.
+func DeleteResponse(ctx context.Context, responseID string, opts ...Option) error {
+	return packageClient(opts...).DeleteResponse(ctx, responseID)
+}
+
+// CancelResponse cancels an in-progress Responses object.
+func CancelResponse(ctx context.Context, responseID string, opts ...Option) (*responses.Response, error) {
+	return packageClient(opts...).CancelResponse(ctx, responseID)
 }

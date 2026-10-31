@@ -12,13 +12,14 @@ type wireMessage struct {
 }
 
 type wireContent struct {
-	Type      string          `json:"type"`
-	Text      string          `json:"text,omitempty"`
-	ID        string          `json:"id,omitempty"`
-	Name      string          `json:"name,omitempty"`
-	Input     json.RawMessage `json:"input,omitempty"`
-	ToolUseID string          `json:"tool_use_id,omitempty"`
-	Content   string          `json:"content,omitempty"` // tool_result payload
+	Type         string              `json:"type"`
+	Text         string              `json:"text,omitempty"`
+	ID           string              `json:"id,omitempty"`
+	Name         string              `json:"name,omitempty"`
+	Input        json.RawMessage     `json:"input,omitempty"`
+	ToolUseID    string              `json:"tool_use_id,omitempty"`
+	Content      string              `json:"content,omitempty"` // tool_result payload
+	CacheControl *types.CacheControl `json:"cache_control,omitempty"`
 }
 
 type wireTool struct {
@@ -31,7 +32,7 @@ type wireRequest struct {
 	Model       string        `json:"model"`
 	Messages    []wireMessage `json:"messages"`
 	MaxTokens   int           `json:"max_tokens"`
-	System      string        `json:"system,omitempty"`
+	System      any           `json:"system,omitempty"` // string or []wireContent (prompt cache)
 	Temperature *float64      `json:"temperature,omitempty"`
 	Stream      bool          `json:"stream,omitempty"`
 	Tools       []wireTool    `json:"tools,omitempty"`
@@ -78,19 +79,66 @@ type wireStreamEvent struct {
 	Error *wireError `json:"error,omitempty"`
 }
 
-func splitSystem(msgs []types.Message) (system string, rest []types.Message) {
+func splitSystem(msgs []types.Message) (system any, rest []types.Message) {
+	var blocks []wireContent
+	var plain string
+	useBlocks := false
 	rest = make([]types.Message, 0, len(msgs))
 	for _, m := range msgs {
-		if m.Role == types.RoleSystem {
-			if system != "" {
-				system += "\n"
-			}
-			system += m.Content
+		if m.Role != types.RoleSystem {
+			rest = append(rest, m)
 			continue
 		}
-		rest = append(rest, m)
+		if len(m.Parts) > 0 || m.CacheControl != nil {
+			useBlocks = true
+		}
+		blocks = append(blocks, messageTextBlocks(m)...)
+		if m.Content != "" {
+			if plain != "" {
+				plain += "\n"
+			}
+			plain += m.Content
+		} else {
+			for _, part := range m.Parts {
+				if part.Type == "text" || part.Type == "" {
+					if plain != "" {
+						plain += "\n"
+					}
+					plain += part.Text
+				}
+			}
+		}
 	}
-	return system, rest
+	if useBlocks {
+		return blocks, rest
+	}
+	if plain == "" {
+		return nil, rest
+	}
+	return plain, rest
+}
+
+func messageTextBlocks(m types.Message) []wireContent {
+	if len(m.Parts) > 0 {
+		out := make([]wireContent, 0, len(m.Parts))
+		for _, part := range m.Parts {
+			typ := part.Type
+			if typ == "" {
+				typ = "text"
+			}
+			out = append(out, wireContent{
+				Type:         typ,
+				Text:         part.Text,
+				CacheControl: part.CacheControl,
+			})
+		}
+		return out
+	}
+	return []wireContent{{
+		Type:         "text",
+		Text:         m.Content,
+		CacheControl: m.CacheControl,
+	}}
 }
 
 func toWireMessages(msgs []types.Message) []wireMessage {
@@ -108,8 +156,8 @@ func toWireMessages(msgs []types.Message) []wireMessage {
 			})
 		case types.RoleAssistant:
 			blocks := make([]wireContent, 0, 1+len(m.ToolCalls))
-			if m.Content != "" {
-				blocks = append(blocks, wireContent{Type: "text", Text: m.Content})
+			if len(m.Parts) > 0 || m.Content != "" || m.CacheControl != nil {
+				blocks = append(blocks, messageTextBlocks(m)...)
 			}
 			for _, tc := range m.ToolCalls {
 				input := json.RawMessage(tc.Arguments)
@@ -130,11 +178,8 @@ func toWireMessages(msgs []types.Message) []wireMessage {
 			out = append(out, wireMessage{Role: "assistant", Content: blocks})
 		default:
 			out = append(out, wireMessage{
-				Role: "user",
-				Content: []wireContent{{
-					Type: "text",
-					Text: m.Content,
-				}},
+				Role:    "user",
+				Content: messageTextBlocks(m),
 			})
 		}
 	}

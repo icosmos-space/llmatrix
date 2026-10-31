@@ -7,6 +7,7 @@ import (
 	"github.com/icosmos-space/llmatrix/sdk/embedding"
 	"github.com/icosmos-space/llmatrix/sdk/image"
 	"github.com/icosmos-space/llmatrix/sdk/rerank"
+	"github.com/icosmos-space/llmatrix/sdk/responses"
 	"github.com/icosmos-space/llmatrix/sdk/tools"
 )
 
@@ -30,12 +31,23 @@ func toEngineChatRequest(req *chat.Request, model string) *types.ChatRequest {
 		ParallelToolCalls: req.ParallelToolCalls,
 		Messages:          make([]types.Message, 0, len(req.Messages)),
 	}
+	out.PromptCacheKey = req.PromptCacheKey
 	for _, m := range req.Messages {
 		msg := types.Message{
 			Role:       types.Role(m.Role),
 			Content:    m.Content,
 			Name:       m.Name,
 			ToolCallID: m.ToolCallID,
+		}
+		if m.CacheControl != nil {
+			msg.CacheControl = &types.CacheControl{Type: m.CacheControl.Type}
+		}
+		for _, part := range m.Parts {
+			cp := types.ContentPart{Type: part.Type, Text: part.Text}
+			if part.CacheControl != nil {
+				cp.CacheControl = &types.CacheControl{Type: part.CacheControl.Type}
+			}
+			msg.Parts = append(msg.Parts, cp)
 		}
 		for _, tc := range m.ToolCalls {
 			msg.ToolCalls = append(msg.ToolCalls, types.ToolCall{
@@ -219,6 +231,57 @@ func toEngineRerankRequest(req *rerank.Request, model string) *types.RerankReque
 		TopN:            req.TopN,
 		ReturnDocuments: req.ReturnDocuments,
 	}
+}
+
+func toEngineResponsesRequest(req *responses.Request, model string) *types.ResponsesRequest {
+	return &types.ResponsesRequest{
+		Model:           model,
+		Input:           req.Input,
+		Instructions:    req.Instructions,
+		MaxOutputTokens: req.MaxOutputTokens,
+		Temperature:     req.Temperature,
+		TopP:            req.TopP,
+		Tools:           req.Tools,
+		ToolChoice:      req.ToolChoice,
+		Stream:          req.Stream,
+		User:            req.User,
+		Metadata:        req.Metadata,
+		Store:           req.Store,
+	}
+}
+
+func fromEngineResponsesResponse(resp *types.ResponsesResponse) *responses.Response {
+	if resp == nil {
+		return nil
+	}
+	out := &responses.Response{
+		ID:       resp.ID,
+		Object:   resp.Object,
+		Created:  resp.Created,
+		Status:   resp.Status,
+		Model:    resp.Model,
+		Provider: resp.Provider,
+		Usage: responses.Usage{
+			InputTokens:  resp.Usage.InputTokens,
+			OutputTokens: resp.Usage.OutputTokens,
+			TotalTokens:  resp.Usage.TotalTokens,
+		},
+		Output: make([]responses.OutputItem, 0, len(resp.Output)),
+	}
+	for _, item := range resp.Output {
+		oi := responses.OutputItem{
+			Type:   item.Type,
+			ID:     item.ID,
+			Status: item.Status,
+			Role:   item.Role,
+			Result: item.Result,
+		}
+		for _, part := range item.Content {
+			oi.Content = append(oi.Content, responses.ContentPart{Type: part.Type, Text: part.Text})
+		}
+		out.Output = append(out.Output, oi)
+	}
+	return out
 }
 
 func fromEngineRerankResponse(resp *types.RerankResponse) *rerank.Response {

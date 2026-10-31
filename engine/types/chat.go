@@ -20,6 +20,8 @@ type ChatRequest struct {
 	ParallelToolCalls *bool          `json:"parallel_tool_calls,omitempty"`
 	Stream            bool           `json:"stream,omitempty"`
 	StreamOptions     map[string]any `json:"stream_options,omitempty"`
+	// PromptCacheKey is an OpenAI prompt caching key (when supported by the API).
+	PromptCacheKey string `json:"prompt_cache_key,omitempty"`
 }
 
 // ChatChoice is one completion candidate.

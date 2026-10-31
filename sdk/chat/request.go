@@ -2,13 +2,27 @@ package chat
 
 import "github.com/icosmos-space/llmatrix/sdk/tools"
 
+// CacheControl marks a content block for prompt caching (Anthropic-style).
+type CacheControl struct {
+	Type string `json:"type"` // typically "ephemeral"
+}
+
+// ContentPart is a structured message content block.
+type ContentPart struct {
+	Type         string        `json:"type"`
+	Text         string        `json:"text,omitempty"`
+	CacheControl *CacheControl `json:"cache_control,omitempty"`
+}
+
 // Message is a single chat turn.
 type Message struct {
-	Role       string       `json:"role"`
-	Content    string       `json:"content"`
-	Name       string       `json:"name,omitempty"`
-	ToolCallID string       `json:"tool_call_id,omitempty"`
-	ToolCalls  []tools.Call `json:"tool_calls,omitempty"`
+	Role         string        `json:"role"`
+	Content      string        `json:"content"`
+	Name         string        `json:"name,omitempty"`
+	ToolCallID   string        `json:"tool_call_id,omitempty"`
+	ToolCalls    []tools.Call  `json:"tool_calls,omitempty"`
+	Parts        []ContentPart `json:"parts,omitempty"`
+	CacheControl *CacheControl `json:"cache_control,omitempty"`
 }
 
 // Request is a chat completion request (OpenAI / LiteLLM shaped).
@@ -31,4 +45,5 @@ type Request struct {
 	Tools             []tools.Tool   `json:"tools,omitempty"`
 	ToolChoice        any            `json:"tool_choice,omitempty"`
 	ParallelToolCalls *bool          `json:"parallel_tool_calls,omitempty"`
+	PromptCacheKey    string         `json:"prompt_cache_key,omitempty"`
 }

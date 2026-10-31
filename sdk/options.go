@@ -32,6 +32,11 @@ func WithBaseURL(url string) Option {
 	return func(c *Config) { c.BaseURL = url }
 }
 
+// WithAPIVersion sets Azure OpenAI api-version (and similar versioned APIs).
+func WithAPIVersion(version string) Option {
+	return func(c *Config) { c.APIVersion = version }
+}
+
 // WithHTTPClient sets a custom HTTP client.
 func WithHTTPClient(client *http.Client) Option {
 	return func(c *Config) { c.HTTPClient = client }

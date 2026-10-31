@@ -31,6 +31,12 @@ func DefaultAliases() *AliasMap {
 		"deepseek-chat":          "deepseek/deepseek-chat",
 		"deepseek-reasoner":      "deepseek/deepseek-reasoner",
 		"llama3":                 "ollama/llama3",
+		"llama-3.3-70b":          "groq/llama-3.3-70b-versatile",
+		"mixtral-8x7b":           "groq/mixtral-8x7b-32768",
+		"mistral-large":          "mistral/mistral-large-latest",
+		"mistral-small":          "mistral/mistral-small-latest",
+		// Azure: use azure/<deployment>; no short aliases by default.
+		// Together: use together/<model-id>.
 	}}
 }
 

@@ -34,12 +34,16 @@ LLMatrix abstracts these differences behind a unified Go interface.
 
 | Provider | Chat Completion | Streaming | Tool Calling | Embeddings |
 |---|---|---|---|---|
-| OpenAI | Yes | Yes | Partial | Yes |
-| DeepSeek | Yes | Yes | Partial | Yes |
-| Ollama | Yes | Yes | Partial | Yes |
-| OpenAI-compatible APIs | Yes | Yes | Partial | Yes |
-| Anthropic | Yes | Yes | Partial | — |
-| Google Gemini | Yes | Yes | Partial | Yes |
+| OpenAI | Yes | Yes | Yes | Yes |
+| DeepSeek | Yes | Yes | Yes | Yes |
+| Groq | Yes | Yes | Yes | Yes |
+| Together | Yes | Yes | Yes | Yes |
+| Mistral | Yes | Yes | Yes | Yes |
+| Ollama | Yes | Yes | Yes | Yes |
+| OpenAI-compatible APIs | Yes | Yes | Yes | Yes |
+| Anthropic | Yes | Yes | Yes | — |
+| Google Gemini | Yes | Yes | Yes | Yes |
+| Azure OpenAI | Yes | Yes | Yes | Yes |
 
 > Provider support is under active development. Check the project roadmap for implementation status.
 
@@ -165,7 +169,9 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) for details.
 - [x] Model routing (alias + provider/model)
 - [x] Proxy → Engine chat/embeddings wiring
 - [x] Image / speech / transcription / rerank (OpenAI-compatible)
-- [ ] OpenAI Responses API (`responses()`)
+- [x] OpenAI Responses API (`responses()` + chat bridge)
+- [x] Azure OpenAI provider
+- [x] Gemini tool calling
 
 ### Phase 4 — Developer Experience
 
