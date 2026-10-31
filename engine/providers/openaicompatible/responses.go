@@ -75,5 +75,8 @@ func responsesBody(req *types.ResponsesRequest, stream bool) map[string]any {
 	if req.Store != nil {
 		body["store"] = *req.Store
 	}
+	if req.PreviousResponseID != "" {
+		body["previous_response_id"] = req.PreviousResponseID
+	}
 	return body
 }

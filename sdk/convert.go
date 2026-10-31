@@ -6,6 +6,7 @@ import (
 	"github.com/icosmos-space/llmatrix/sdk/chat"
 	"github.com/icosmos-space/llmatrix/sdk/embedding"
 	"github.com/icosmos-space/llmatrix/sdk/image"
+	"github.com/icosmos-space/llmatrix/sdk/moderation"
 	"github.com/icosmos-space/llmatrix/sdk/rerank"
 	"github.com/icosmos-space/llmatrix/sdk/responses"
 	"github.com/icosmos-space/llmatrix/sdk/tools"
@@ -13,25 +14,30 @@ import (
 
 func toEngineChatRequest(req *chat.Request, model string) *types.ChatRequest {
 	out := &types.ChatRequest{
-		Model:             model,
-		Temperature:       req.Temperature,
-		TopP:              req.TopP,
-		N:                 req.N,
-		Stop:              req.Stop,
-		MaxTokens:         req.MaxTokens,
-		PresencePenalty:   req.PresencePenalty,
-		FrequencyPenalty:  req.FrequencyPenalty,
-		LogitBias:         req.LogitBias,
-		User:              req.User,
-		Seed:              req.Seed,
-		ResponseFormat:    req.ResponseFormat,
-		Stream:            req.Stream,
-		StreamOptions:     req.StreamOptions,
-		ToolChoice:        req.ToolChoice,
-		ParallelToolCalls: req.ParallelToolCalls,
-		Messages:          make([]types.Message, 0, len(req.Messages)),
+		Model:               model,
+		Temperature:         req.Temperature,
+		TopP:                req.TopP,
+		N:                   req.N,
+		Stop:                req.Stop,
+		MaxTokens:           req.MaxTokens,
+		MaxCompletionTokens: req.MaxCompletionTokens,
+		PresencePenalty:     req.PresencePenalty,
+		FrequencyPenalty:    req.FrequencyPenalty,
+		LogitBias:           req.LogitBias,
+		User:                req.User,
+		Seed:                req.Seed,
+		ResponseFormat:      req.ResponseFormat,
+		Stream:              req.Stream,
+		StreamOptions:       req.StreamOptions,
+		ToolChoice:          req.ToolChoice,
+		ParallelToolCalls:   req.ParallelToolCalls,
+		Logprobs:            req.Logprobs,
+		TopLogprobs:         req.TopLogprobs,
+		ReasoningEffort:     req.ReasoningEffort,
+		PromptCacheKey:      req.PromptCacheKey,
+		Thinking:            req.Thinking,
+		Messages:            make([]types.Message, 0, len(req.Messages)),
 	}
-	out.PromptCacheKey = req.PromptCacheKey
 	for _, m := range req.Messages {
 		msg := types.Message{
 			Role:       types.Role(m.Role),
@@ -235,19 +241,76 @@ func toEngineRerankRequest(req *rerank.Request, model string) *types.RerankReque
 
 func toEngineResponsesRequest(req *responses.Request, model string) *types.ResponsesRequest {
 	return &types.ResponsesRequest{
-		Model:           model,
-		Input:           req.Input,
-		Instructions:    req.Instructions,
-		MaxOutputTokens: req.MaxOutputTokens,
-		Temperature:     req.Temperature,
-		TopP:            req.TopP,
-		Tools:           req.Tools,
-		ToolChoice:      req.ToolChoice,
-		Stream:          req.Stream,
-		User:            req.User,
-		Metadata:        req.Metadata,
-		Store:           req.Store,
+		Model:              model,
+		Input:              req.Input,
+		Instructions:       req.Instructions,
+		MaxOutputTokens:    req.MaxOutputTokens,
+		Temperature:        req.Temperature,
+		TopP:               req.TopP,
+		Tools:              req.Tools,
+		ToolChoice:         req.ToolChoice,
+		Stream:             req.Stream,
+		User:               req.User,
+		Metadata:           req.Metadata,
+		Store:              req.Store,
+		PreviousResponseID: req.PreviousResponseID,
 	}
+}
+
+func toEngineImageEditRequest(req *image.EditRequest, model string) *types.ImageEditRequest {
+	return &types.ImageEditRequest{
+		Model:          model,
+		Prompt:         req.Prompt,
+		Image:          req.Image,
+		ImageFileName:  req.ImageFileName,
+		Mask:           req.Mask,
+		MaskFileName:   req.MaskFileName,
+		N:              req.N,
+		Size:           req.Size,
+		ResponseFormat: req.ResponseFormat,
+		User:           req.User,
+	}
+}
+
+func toEngineModerationRequest(req *moderation.Request, model string) *types.ModerationRequest {
+	return &types.ModerationRequest{
+		Model: model,
+		Input: req.Input,
+	}
+}
+
+func fromEngineModerationResponse(resp *types.ModerationResponse) *moderation.Response {
+	if resp == nil {
+		return nil
+	}
+	out := &moderation.Response{
+		ID:       resp.ID,
+		Model:    resp.Model,
+		Provider: resp.Provider,
+		Results:  make([]moderation.Result, 0, len(resp.Results)),
+	}
+	for _, r := range resp.Results {
+		out.Results = append(out.Results, moderation.Result{
+			Flagged: r.Flagged,
+			Categories: moderation.Categories{
+				Hate: r.Categories.Hate, HateThreatening: r.Categories.HateThreatening,
+				Harassment: r.Categories.Harassment, HarassmentThreatening: r.Categories.HarassmentThreatening,
+				SelfHarm: r.Categories.SelfHarm, SelfHarmIntent: r.Categories.SelfHarmIntent,
+				SelfHarmInstructions: r.Categories.SelfHarmInstructions,
+				Sexual:               r.Categories.Sexual, SexualMinors: r.Categories.SexualMinors,
+				Violence: r.Categories.Violence, ViolenceGraphic: r.Categories.ViolenceGraphic,
+			},
+			CategoryScores: moderation.CategoryScores{
+				Hate: r.CategoryScores.Hate, HateThreatening: r.CategoryScores.HateThreatening,
+				Harassment: r.CategoryScores.Harassment, HarassmentThreatening: r.CategoryScores.HarassmentThreatening,
+				SelfHarm: r.CategoryScores.SelfHarm, SelfHarmIntent: r.CategoryScores.SelfHarmIntent,
+				SelfHarmInstructions: r.CategoryScores.SelfHarmInstructions,
+				Sexual:               r.CategoryScores.Sexual, SexualMinors: r.CategoryScores.SexualMinors,
+				Violence: r.CategoryScores.Violence, ViolenceGraphic: r.CategoryScores.ViolenceGraphic,
+			},
+		})
+	}
+	return out
 }
 
 func fromEngineResponsesResponse(resp *types.ResponsesResponse) *responses.Response {

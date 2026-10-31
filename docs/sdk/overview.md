@@ -15,6 +15,10 @@ Target: cover the LiteLLM **Python SDK** surface (not the Proxy gateway).
 | `speech` | `sdk.Speech` |
 | `transcription` | `sdk.Transcription` |
 | `rerank` | `sdk.Rerank` |
+| `moderation` | `sdk.Moderation` |
+| `image_edit` | `sdk.ImageEdit` |
+| `token_counter` | `sdk.TokenCounter` / `TokenCounterMessages` |
+| `completion_cost` | `sdk.CompletionCost` / `CompletionCostFromUsage` |
 | `responses` | `sdk.Responses` (OpenAI native; others bridged via chat) |
 | streaming responses | `sdk.ResponsesStream` |
 | get/delete/cancel responses | `sdk.GetResponse` / `DeleteResponse` / `CancelResponse` |

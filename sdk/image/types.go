@@ -12,6 +12,20 @@ type Request struct {
 	User           string `json:"user,omitempty"`
 }
 
+// EditRequest is an image edit request (LiteLLM image_edit()).
+type EditRequest struct {
+	Model          string `json:"model,omitempty"`
+	Prompt         string `json:"prompt"`
+	Image          []byte `json:"-"`
+	ImageFileName  string `json:"-"`
+	Mask           []byte `json:"-"`
+	MaskFileName   string `json:"-"`
+	N              *int   `json:"n,omitempty"`
+	Size           string `json:"size,omitempty"`
+	ResponseFormat string `json:"response_format,omitempty"`
+	User           string `json:"user,omitempty"`
+}
+
 // Data is one generated image.
 type Data struct {
 	URL     string `json:"url,omitempty"`

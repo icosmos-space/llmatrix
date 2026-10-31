@@ -2,18 +2,19 @@ package responses
 
 // Request is a LiteLLM / OpenAI Responses API create request.
 type Request struct {
-	Model           string            `json:"model,omitempty"`
-	Input           any               `json:"input"`
-	Instructions    string            `json:"instructions,omitempty"`
-	MaxOutputTokens *int              `json:"max_output_tokens,omitempty"`
-	Temperature     *float64          `json:"temperature,omitempty"`
-	TopP            *float64          `json:"top_p,omitempty"`
-	Tools           []any             `json:"tools,omitempty"`
-	ToolChoice      any               `json:"tool_choice,omitempty"`
-	Stream          bool              `json:"stream,omitempty"`
-	User            string            `json:"user,omitempty"`
-	Metadata        map[string]string `json:"metadata,omitempty"`
-	Store           *bool             `json:"store,omitempty"`
+	Model              string            `json:"model,omitempty"`
+	Input              any               `json:"input"`
+	Instructions       string            `json:"instructions,omitempty"`
+	MaxOutputTokens    *int              `json:"max_output_tokens,omitempty"`
+	Temperature        *float64          `json:"temperature,omitempty"`
+	TopP               *float64          `json:"top_p,omitempty"`
+	Tools              []any             `json:"tools,omitempty"`
+	ToolChoice         any               `json:"tool_choice,omitempty"`
+	Stream             bool              `json:"stream,omitempty"`
+	User               string            `json:"user,omitempty"`
+	Metadata           map[string]string `json:"metadata,omitempty"`
+	Store              *bool             `json:"store,omitempty"`
+	PreviousResponseID string            `json:"previous_response_id,omitempty"`
 }
 
 // ContentPart is a content part inside a message output item.

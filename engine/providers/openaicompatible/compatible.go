@@ -55,10 +55,12 @@ func (p *Provider) Info() provider.Info {
 	switch name {
 	case "openai", "openai-compatible":
 		caps.Images = true
+		caps.ImageEdit = true
 		caps.Speech = true
 		caps.Transcription = true
 		caps.Rerank = true
 		caps.Responses = true
+		caps.Moderation = true
 	case "deepseek", "groq", "together", "mistral":
 		// chat-focused OpenAI-compatible APIs
 	case "ollama":

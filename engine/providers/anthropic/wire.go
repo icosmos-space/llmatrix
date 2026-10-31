@@ -37,6 +37,7 @@ type wireRequest struct {
 	Stream      bool          `json:"stream,omitempty"`
 	Tools       []wireTool    `json:"tools,omitempty"`
 	ToolChoice  any           `json:"tool_choice,omitempty"`
+	Thinking    any           `json:"thinking,omitempty"` // Anthropic extended thinking
 }
 
 type wireResponse struct {

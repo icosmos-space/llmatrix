@@ -12,6 +12,20 @@ type ImageRequest struct {
 	User           string `json:"user,omitempty"`
 }
 
+// ImageEditRequest is an image edit request (OpenAI /images/edits, LiteLLM image_edit()).
+type ImageEditRequest struct {
+	Model          string `json:"model,omitempty"`
+	Prompt         string `json:"prompt"`
+	Image          []byte `json:"-"`
+	ImageFileName  string `json:"-"`
+	Mask           []byte `json:"-"`
+	MaskFileName   string `json:"-"`
+	N              *int   `json:"n,omitempty"`
+	Size           string `json:"size,omitempty"`
+	ResponseFormat string `json:"response_format,omitempty"`
+	User           string `json:"user,omitempty"`
+}
+
 // ImageData is one generated image.
 type ImageData struct {
 	URL     string `json:"url,omitempty"`

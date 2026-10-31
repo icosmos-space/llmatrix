@@ -13,6 +13,10 @@ Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one
 | `speech()` | `sdk.Speech` / `Client.Speech` |
 | `transcription()` | `sdk.Transcription` / `Client.Transcription` |
 | `rerank()` | `sdk.Rerank` / `Client.Rerank` |
+| `moderation()` | `sdk.Moderation` / `Client.Moderation` |
+| `image_edit()` | `sdk.ImageEdit` / `Client.ImageEdit` |
+| `token_counter` | `sdk.TokenCounter` / `TokenCounterMessages` |
+| `completion_cost` | `sdk.CompletionCost` / `CompletionCostFromUsage` |
 | `responses()` | `sdk.Responses` / `Client.Responses` (native OpenAI; else chat bridge) |
 | streaming responses | `sdk.ResponsesStream` / `Client.ResponsesStream` |
 | get/delete/cancel responses | `GetResponse` / `DeleteResponse` / `CancelResponse` |

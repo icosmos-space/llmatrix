@@ -28,4 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gemini function/tool calling.
 - Groq / Together / Mistral OpenAI-compatible providers.
 - Prompt caching: Anthropic `cache_control` content blocks + OpenAI `prompt_cache_key`.
+- LiteLLM SDK parity: `Moderation`, `ImageEdit`, `TokenCounter` / `CompletionCost`,
+  chat `reasoning_effort` / `max_completion_tokens` / `logprobs` / Anthropic `thinking`,
+  Responses `previous_response_id`.
 

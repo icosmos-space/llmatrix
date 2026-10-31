@@ -14,10 +14,12 @@ type Capabilities struct {
 	Tools         bool
 	Embeddings    bool
 	Images        bool
+	ImageEdit     bool
 	Speech        bool
 	Transcription bool
 	Rerank        bool
 	Responses     bool
+	Moderation    bool
 }
 
 // Provider is the root provider identity.

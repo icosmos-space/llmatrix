@@ -26,25 +26,29 @@ type wireToolCall struct {
 }
 
 type wireChatRequest struct {
-	Model             string         `json:"model"`
-	Messages          []wireMessage  `json:"messages"`
-	Temperature       *float64       `json:"temperature,omitempty"`
-	TopP              *float64       `json:"top_p,omitempty"`
-	N                 *int           `json:"n,omitempty"`
-	Stop              []string       `json:"stop,omitempty"`
-	MaxTokens         *int           `json:"max_tokens,omitempty"`
-	PresencePenalty   *float64       `json:"presence_penalty,omitempty"`
-	FrequencyPenalty  *float64       `json:"frequency_penalty,omitempty"`
-	LogitBias         map[string]int `json:"logit_bias,omitempty"`
-	User              string         `json:"user,omitempty"`
-	Seed              *int           `json:"seed,omitempty"`
-	ResponseFormat    any            `json:"response_format,omitempty"`
-	Stream            bool           `json:"stream,omitempty"`
-	StreamOptions     map[string]any `json:"stream_options,omitempty"`
-	Tools             []wireTool     `json:"tools,omitempty"`
-	ToolChoice        any            `json:"tool_choice,omitempty"`
-	ParallelToolCalls *bool          `json:"parallel_tool_calls,omitempty"`
-	PromptCacheKey    string         `json:"prompt_cache_key,omitempty"`
+	Model               string         `json:"model"`
+	Messages            []wireMessage  `json:"messages"`
+	Temperature         *float64       `json:"temperature,omitempty"`
+	TopP                *float64       `json:"top_p,omitempty"`
+	N                   *int           `json:"n,omitempty"`
+	Stop                []string       `json:"stop,omitempty"`
+	MaxTokens           *int           `json:"max_tokens,omitempty"`
+	MaxCompletionTokens *int           `json:"max_completion_tokens,omitempty"`
+	PresencePenalty     *float64       `json:"presence_penalty,omitempty"`
+	FrequencyPenalty    *float64       `json:"frequency_penalty,omitempty"`
+	LogitBias           map[string]int `json:"logit_bias,omitempty"`
+	User                string         `json:"user,omitempty"`
+	Seed                *int           `json:"seed,omitempty"`
+	ResponseFormat      any            `json:"response_format,omitempty"`
+	Stream              bool           `json:"stream,omitempty"`
+	StreamOptions       map[string]any `json:"stream_options,omitempty"`
+	Tools               []wireTool     `json:"tools,omitempty"`
+	ToolChoice          any            `json:"tool_choice,omitempty"`
+	ParallelToolCalls   *bool          `json:"parallel_tool_calls,omitempty"`
+	Logprobs            *bool          `json:"logprobs,omitempty"`
+	TopLogprobs         *int           `json:"top_logprobs,omitempty"`
+	ReasoningEffort     string         `json:"reasoning_effort,omitempty"`
+	PromptCacheKey      string         `json:"prompt_cache_key,omitempty"`
 }
 
 type wireTool struct {
@@ -111,25 +115,29 @@ type wireEmbeddingResponse struct {
 
 func toWireChatRequest(req *types.ChatRequest, stream bool) wireChatRequest {
 	return wireChatRequest{
-		Model:             req.Model,
-		Messages:          toWireMessages(req.Messages),
-		Temperature:       req.Temperature,
-		TopP:              req.TopP,
-		N:                 req.N,
-		Stop:              req.Stop,
-		MaxTokens:         req.MaxTokens,
-		PresencePenalty:   req.PresencePenalty,
-		FrequencyPenalty:  req.FrequencyPenalty,
-		LogitBias:         req.LogitBias,
-		User:              req.User,
-		Seed:              req.Seed,
-		ResponseFormat:    req.ResponseFormat,
-		Stream:            stream,
-		StreamOptions:     req.StreamOptions,
-		Tools:             toWireTools(req.Tools),
-		ToolChoice:        req.ToolChoice,
-		ParallelToolCalls: req.ParallelToolCalls,
-		PromptCacheKey:    req.PromptCacheKey,
+		Model:               req.Model,
+		Messages:            toWireMessages(req.Messages),
+		Temperature:         req.Temperature,
+		TopP:                req.TopP,
+		N:                   req.N,
+		Stop:                req.Stop,
+		MaxTokens:           req.MaxTokens,
+		MaxCompletionTokens: req.MaxCompletionTokens,
+		PresencePenalty:     req.PresencePenalty,
+		FrequencyPenalty:    req.FrequencyPenalty,
+		LogitBias:           req.LogitBias,
+		User:                req.User,
+		Seed:                req.Seed,
+		ResponseFormat:      req.ResponseFormat,
+		Stream:              stream,
+		StreamOptions:       req.StreamOptions,
+		Tools:               toWireTools(req.Tools),
+		ToolChoice:          req.ToolChoice,
+		ParallelToolCalls:   req.ParallelToolCalls,
+		Logprobs:            req.Logprobs,
+		TopLogprobs:         req.TopLogprobs,
+		ReasoningEffort:     req.ReasoningEffort,
+		PromptCacheKey:      req.PromptCacheKey,
 	}
 }
 

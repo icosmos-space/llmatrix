@@ -10,6 +10,7 @@ import (
 	"github.com/icosmos-space/llmatrix/sdk/audio"
 	"github.com/icosmos-space/llmatrix/sdk/embedding"
 	"github.com/icosmos-space/llmatrix/sdk/image"
+	"github.com/icosmos-space/llmatrix/sdk/moderation"
 	"github.com/icosmos-space/llmatrix/sdk/rerank"
 )
 
@@ -121,4 +122,56 @@ func (c *Client) Rerank(ctx context.Context, req *rerank.Request) (*rerank.Respo
 		return nil, err
 	}
 	return out.(*rerank.Response), nil
+}
+
+// ImageEdit edits an image (LiteLLM image_edit()).
+func (c *Client) ImageEdit(ctx context.Context, req *image.EditRequest) (*image.Response, error) {
+	if req == nil {
+		return nil, ErrInvalidRequest
+	}
+	modelName := req.Model
+	if modelName == "" {
+		modelName = "openai/dall-e-2"
+	}
+	out, err := c.withCandidates(ctx, "image_edit", modelName, func(ctx context.Context, ref model.Ref, p provider.Provider) (types.Usage, any, error) {
+		ep, ok := p.(provider.ImageEditProvider)
+		if !ok {
+			return types.Usage{}, nil, fmt.Errorf("%w: provider %q does not support image edit", ErrUnsupported, ref.Provider)
+		}
+		resp, err := ep.ImageEdit(ctx, toEngineImageEditRequest(req, ref.Model))
+		if err != nil {
+			return types.Usage{}, nil, err
+		}
+		return types.Usage{}, fromEngineImageResponse(resp), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out.(*image.Response), nil
+}
+
+// Moderation classifies content (LiteLLM moderation()).
+func (c *Client) Moderation(ctx context.Context, req *moderation.Request) (*moderation.Response, error) {
+	if req == nil {
+		return nil, ErrInvalidRequest
+	}
+	modelName := req.Model
+	if modelName == "" {
+		modelName = "openai/omni-moderation-latest"
+	}
+	out, err := c.withCandidates(ctx, "moderation", modelName, func(ctx context.Context, ref model.Ref, p provider.Provider) (types.Usage, any, error) {
+		mp, ok := p.(provider.ModerationProvider)
+		if !ok {
+			return types.Usage{}, nil, fmt.Errorf("%w: provider %q does not support moderation", ErrUnsupported, ref.Provider)
+		}
+		resp, err := mp.Moderation(ctx, toEngineModerationRequest(req, ref.Model))
+		if err != nil {
+			return types.Usage{}, nil, err
+		}
+		return types.Usage{}, fromEngineModerationResponse(resp), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return out.(*moderation.Response), nil
 }

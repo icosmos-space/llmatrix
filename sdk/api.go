@@ -8,13 +8,15 @@ import (
 	"github.com/icosmos-space/llmatrix/sdk/chat"
 	"github.com/icosmos-space/llmatrix/sdk/embedding"
 	"github.com/icosmos-space/llmatrix/sdk/image"
+	"github.com/icosmos-space/llmatrix/sdk/moderation"
 	"github.com/icosmos-space/llmatrix/sdk/rerank"
 	"github.com/icosmos-space/llmatrix/sdk/responses"
 	"github.com/icosmos-space/llmatrix/sdk/streaming"
 )
 
 // Package-level helpers mirror LiteLLM's module functions:
-// completion / embedding / image_generation / speech / transcription / rerank / responses.
+// completion / embedding / image_generation / image_edit / speech / transcription /
+// rerank / responses / moderation / token_counter / completion_cost.
 
 var (
 	defaultMu     sync.RWMutex
@@ -61,6 +63,16 @@ func Embedding(ctx context.Context, req *embedding.Request, opts ...Option) (*em
 // ImageGeneration is LiteLLM image_generation().
 func ImageGeneration(ctx context.Context, req *image.Request, opts ...Option) (*image.Response, error) {
 	return packageClient(opts...).ImageGeneration(ctx, req)
+}
+
+// ImageEdit is LiteLLM image_edit().
+func ImageEdit(ctx context.Context, req *image.EditRequest, opts ...Option) (*image.Response, error) {
+	return packageClient(opts...).ImageEdit(ctx, req)
+}
+
+// Moderation is LiteLLM moderation().
+func Moderation(ctx context.Context, req *moderation.Request, opts ...Option) (*moderation.Response, error) {
+	return packageClient(opts...).Moderation(ctx, req)
 }
 
 // Speech is LiteLLM speech().

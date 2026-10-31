@@ -69,6 +69,7 @@ func buildRequest(req *types.ChatRequest, stream bool) (*wireRequest, error) {
 		Stream:      stream,
 		Tools:       toWireTools(req.Tools),
 		ToolChoice:  toWireToolChoice(req.ToolChoice),
+		Thinking:    req.Thinking,
 	}, nil
 }
 
