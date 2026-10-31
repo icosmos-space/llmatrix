@@ -25,15 +25,7 @@ func (p *Provider) ChatCompletionStream(ctx context.Context, req *types.ChatRequ
 		return nil, errors.Wrap(errors.KindInvalidRequest, p.Info().Name, "messages are required", nil)
 	}
 
-	body := wireChatRequest{
-		Model:       req.Model,
-		Messages:    toWireMessages(req.Messages),
-		Temperature: req.Temperature,
-		MaxTokens:   req.MaxTokens,
-		Stream:      true,
-		Tools:       toWireTools(req.Tools),
-		ToolChoice:  req.ToolChoice,
-	}
+	body := toWireChatRequest(req, true)
 
 	httpReq, err := p.newRequest(ctx, "POST", "/chat/completions", body)
 	if err != nil {

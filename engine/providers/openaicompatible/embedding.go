@@ -19,7 +19,13 @@ func (p *Provider) Embeddings(ctx context.Context, req *types.EmbeddingRequest) 
 		return nil, errors.Wrap(errors.KindInvalidRequest, p.Info().Name, "input is required", nil)
 	}
 
-	body := wireEmbeddingRequest{Model: req.Model, Input: req.Input}
+	body := wireEmbeddingRequest{
+		Model:          req.Model,
+		Input:          req.Input,
+		Dimensions:     req.Dimensions,
+		EncodingFormat: req.EncodingFormat,
+		User:           req.User,
+	}
 	var raw wireEmbeddingResponse
 	if err := p.doJSON(ctx, "POST", "/embeddings", body, &raw); err != nil {
 		return nil, err

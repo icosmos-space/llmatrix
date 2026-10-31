@@ -42,11 +42,24 @@ func (p *Provider) Info() provider.Info {
 	case "ollama":
 		display = "Ollama"
 	}
+	caps := provider.Capabilities{
+		Chat: true, Streaming: true, Tools: true, Embeddings: true,
+	}
+	// Full multimodal surface for OpenAI and generic compatible gateways.
+	switch name {
+	case "openai", "openai-compatible":
+		caps.Images = true
+		caps.Speech = true
+		caps.Transcription = true
+		caps.Rerank = true
+	case "deepseek":
+		// chat-focused
+	case "ollama":
+		// chat + embeddings typically
+	}
 	return provider.Info{
-		Name:        name,
-		DisplayName: display,
-		Capabilities: provider.Capabilities{
-			Chat: true, Streaming: true, Tools: true, Embeddings: true,
-		},
+		Name:         name,
+		DisplayName:  display,
+		Capabilities: caps,
 	}
 }

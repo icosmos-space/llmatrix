@@ -2,8 +2,11 @@ package types
 
 // EmbeddingRequest is the engine-level embedding request.
 type EmbeddingRequest struct {
-	Model string   `json:"model"`
-	Input []string `json:"input"`
+	Model          string   `json:"model"`
+	Input          []string `json:"input"`
+	Dimensions     *int     `json:"dimensions,omitempty"`
+	EncodingFormat string   `json:"encoding_format,omitempty"`
+	User           string   `json:"user,omitempty"`
 }
 
 // EmbeddingItem is a single vector result.

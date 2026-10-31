@@ -20,13 +20,24 @@ type wireToolCall struct {
 }
 
 type wireChatRequest struct {
-	Model       string        `json:"model"`
-	Messages    []wireMessage `json:"messages"`
-	Temperature *float64      `json:"temperature,omitempty"`
-	MaxTokens   *int          `json:"max_tokens,omitempty"`
-	Stream      bool          `json:"stream,omitempty"`
-	Tools       []wireTool    `json:"tools,omitempty"`
-	ToolChoice  any           `json:"tool_choice,omitempty"`
+	Model             string         `json:"model"`
+	Messages          []wireMessage  `json:"messages"`
+	Temperature       *float64       `json:"temperature,omitempty"`
+	TopP              *float64       `json:"top_p,omitempty"`
+	N                 *int           `json:"n,omitempty"`
+	Stop              []string       `json:"stop,omitempty"`
+	MaxTokens         *int           `json:"max_tokens,omitempty"`
+	PresencePenalty   *float64       `json:"presence_penalty,omitempty"`
+	FrequencyPenalty  *float64       `json:"frequency_penalty,omitempty"`
+	LogitBias         map[string]int `json:"logit_bias,omitempty"`
+	User              string         `json:"user,omitempty"`
+	Seed              *int           `json:"seed,omitempty"`
+	ResponseFormat    any            `json:"response_format,omitempty"`
+	Stream            bool           `json:"stream,omitempty"`
+	StreamOptions     map[string]any `json:"stream_options,omitempty"`
+	Tools             []wireTool     `json:"tools,omitempty"`
+	ToolChoice        any            `json:"tool_choice,omitempty"`
+	ParallelToolCalls *bool          `json:"parallel_tool_calls,omitempty"`
 }
 
 type wireTool struct {
@@ -40,6 +51,8 @@ type wireTool struct {
 
 type wireChatResponse struct {
 	ID      string `json:"id"`
+	Object  string `json:"object"`
+	Created int64  `json:"created"`
 	Model   string `json:"model"`
 	Choices []struct {
 		Index        int         `json:"index"`
@@ -72,8 +85,11 @@ type wireStreamChunk struct {
 }
 
 type wireEmbeddingRequest struct {
-	Model string   `json:"model"`
-	Input []string `json:"input"`
+	Model          string   `json:"model"`
+	Input          []string `json:"input"`
+	Dimensions     *int     `json:"dimensions,omitempty"`
+	EncodingFormat string   `json:"encoding_format,omitempty"`
+	User           string   `json:"user,omitempty"`
 }
 
 type wireEmbeddingResponse struct {
@@ -84,6 +100,29 @@ type wireEmbeddingResponse struct {
 	} `json:"data"`
 	Usage types.Usage `json:"usage"`
 	Error *wireError  `json:"error,omitempty"`
+}
+
+func toWireChatRequest(req *types.ChatRequest, stream bool) wireChatRequest {
+	return wireChatRequest{
+		Model:             req.Model,
+		Messages:          toWireMessages(req.Messages),
+		Temperature:       req.Temperature,
+		TopP:              req.TopP,
+		N:                 req.N,
+		Stop:              req.Stop,
+		MaxTokens:         req.MaxTokens,
+		PresencePenalty:   req.PresencePenalty,
+		FrequencyPenalty:  req.FrequencyPenalty,
+		LogitBias:         req.LogitBias,
+		User:              req.User,
+		Seed:              req.Seed,
+		ResponseFormat:    req.ResponseFormat,
+		Stream:            stream,
+		StreamOptions:     req.StreamOptions,
+		Tools:             toWireTools(req.Tools),
+		ToolChoice:        req.ToolChoice,
+		ParallelToolCalls: req.ParallelToolCalls,
+	}
 }
 
 func toWireMessages(msgs []types.Message) []wireMessage {

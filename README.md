@@ -158,12 +158,14 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) for details.
 
 - [x] Tool Calling (OpenAI-compatible + Anthropic)
 - [x] Embeddings (OpenAI-compatible + Gemini)
-- [ ] Model aliases
+- [x] Model aliases
 - [x] Automatic retries
 - [x] Fallback strategies
-- [ ] Load balancing
-- [ ] Model routing
+- [x] Load balancing (`sdk.Router`)
+- [x] Model routing (alias + provider/model)
 - [x] Proxy → Engine chat/embeddings wiring
+- [x] Image / speech / transcription / rerank (OpenAI-compatible)
+- [ ] OpenAI Responses API (`responses()`)
 
 ### Phase 4 — Developer Experience
 

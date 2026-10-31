@@ -23,15 +23,7 @@ func (p *Provider) ChatCompletion(ctx context.Context, req *types.ChatRequest) (
 		return nil, errors.Wrap(errors.KindInvalidRequest, p.Info().Name, "use ChatCompletionStream for stream=true", nil)
 	}
 
-	body := wireChatRequest{
-		Model:       req.Model,
-		Messages:    toWireMessages(req.Messages),
-		Temperature: req.Temperature,
-		MaxTokens:   req.MaxTokens,
-		Stream:      false,
-		Tools:       toWireTools(req.Tools),
-		ToolChoice:  req.ToolChoice,
-	}
+	body := toWireChatRequest(req, false)
 
 	var raw wireChatResponse
 	if err := p.doJSON(ctx, "POST", "/chat/completions", body, &raw); err != nil {
@@ -46,6 +38,8 @@ func (p *Provider) ChatCompletion(ctx context.Context, req *types.ChatRequest) (
 
 	out := &types.ChatResponse{
 		ID:       raw.ID,
+		Object:   raw.Object,
+		Created:  raw.Created,
 		Model:    raw.Model,
 		Provider: p.Info().Name,
 		Usage:    raw.Usage,

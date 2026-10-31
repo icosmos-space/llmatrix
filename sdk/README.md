@@ -2,70 +2,65 @@
 
 Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one API, multiple providers.
 
-Supported providers:
+## LiteLLM SDK parity
+
+| LiteLLM | LLMatrix |
+|---|---|
+| `completion()` | `sdk.Completion` / `Client.ChatCompletion` |
+| `completion(..., stream=True)` | `sdk.CompletionStream` / `Client.ChatCompletionStream` |
+| `embedding()` | `sdk.Embedding` / `Client.Embeddings` |
+| `image_generation()` | `sdk.ImageGeneration` / `Client.ImageGeneration` |
+| `speech()` | `sdk.Speech` / `Client.Speech` |
+| `transcription()` | `sdk.Transcription` / `Client.Transcription` |
+| `rerank()` | `sdk.Rerank` / `Client.Rerank` |
+| `Router` | `sdk.NewRouter` |
+| retries / fallbacks | `WithRetry` / `WithFallback` |
+| model aliases | built-in (`gpt-4o-mini` → `openai/gpt-4o-mini`) |
+| success/failure callbacks | `WithSuccessCallback` / `WithFailureCallback` |
+| exception mapping | `sdk.MapError` / `APIError` |
+| `responses()` | Planned |
+
+## Providers
 
 | Provider | Model example | Env key |
 |---|---|---|
-| OpenAI | `openai/gpt-4o-mini` | `OPENAI_API_KEY` |
+| OpenAI | `openai/gpt-4o-mini` or alias `gpt-4o-mini` | `OPENAI_API_KEY` |
 | DeepSeek | `deepseek/deepseek-chat` | `DEEPSEEK_API_KEY` |
 | Ollama | `ollama/llama3` | (optional) |
 | Anthropic | `anthropic/claude-sonnet-4-5` | `ANTHROPIC_API_KEY` |
 | Gemini | `gemini/gemini-2.0-flash` | `GEMINI_API_KEY` / `GOOGLE_API_KEY` |
 | Generic | `openai-compatible/...` + `WithBaseURL` | `OPENAI_API_KEY` |
 
-Non-streaming calls retry on rate limits / transient errors by default (`WithMaxRetries`, `WithRetry`).
-
-Fallback models (tried after primary fails):
+## Quick start
 
 ```go
-client := sdk.NewClient(
-    sdk.WithModel("openai/gpt-4o"),
-    sdk.WithFallback("deepseek/deepseek-chat", "ollama/llama3"),
-)
-```
+import "github.com/icosmos-space/llmatrix/sdk"
+import "github.com/icosmos-space/llmatrix/sdk/chat"
 
-Tool calling:
+sdk.Configure(sdk.WithAPIKey(os.Getenv("OPENAI_API_KEY")))
 
-```go
-resp, err := client.ChatCompletion(ctx, &chat.Request{
-    Messages: msgs,
-    Tools:    []tools.Tool{weatherTool},
-    ToolChoice: "auto",
+resp, err := sdk.Completion(ctx, &chat.Request{
+    Model: "gpt-4o-mini",
+    Messages: []chat.Message{{Role: "user", Content: "Hello"}},
 })
 ```
 
-## Install
-
-```bash
-go get github.com/icosmos-space/llmatrix/sdk
-```
-
-## Quick start
+Client style:
 
 ```go
 client := sdk.NewClient(
     sdk.WithAPIKey(os.Getenv("OPENAI_API_KEY")),
     sdk.WithModel("openai/gpt-4o-mini"),
+    sdk.WithFallback("deepseek/deepseek-chat"),
 )
-
-resp, err := client.ChatCompletion(ctx, &chat.Request{
-    Messages: []chat.Message{
-        {Role: "user", Content: "Hello!"},
-    },
-})
 ```
 
-Streaming:
+Router (load balance deployments):
 
 ```go
-stream, err := client.ChatCompletionStream(ctx, &chat.Request{Messages: msgs})
-for stream.Next(ctx) {
-    if ev := stream.Event(); ev.Type == streaming.EventTypeDelta {
-        fmt.Print(ev.Delta)
-    }
-}
+r := sdk.NewRouter([]sdk.Deployment{
+    {Name: "chat", Provider: "openai", Model: "gpt-4o-mini", Weight: 1},
+    {Name: "chat", Provider: "openai", Model: "gpt-4o", Weight: 1},
+})
+resp, err := r.ChatCompletion(ctx, "chat", &chat.Request{Messages: msgs})
 ```
-
-## Architecture note
-
-SDK depends on `engine` for provider adapters so Proxy can reuse the same implementations later.

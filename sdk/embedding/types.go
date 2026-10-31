@@ -2,8 +2,11 @@ package embedding
 
 // Request is an embedding request.
 type Request struct {
-	Model string   `json:"model,omitempty"`
-	Input []string `json:"input"`
+	Model          string   `json:"model,omitempty"`
+	Input          []string `json:"input"`
+	Dimensions     *int     `json:"dimensions,omitempty"`
+	EncodingFormat string   `json:"encoding_format,omitempty"`
+	User           string   `json:"user,omitempty"`
 }
 
 // Item is a single embedding vector.

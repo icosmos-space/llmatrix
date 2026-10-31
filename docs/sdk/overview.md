@@ -2,26 +2,27 @@
 
 Module path: `github.com/icosmos-space/llmatrix/sdk`
 
-Inspired by LiteLLM’s Python SDK: one client API, provider selected from the model string.
+Target: cover the LiteLLM **Python SDK** surface (not the Proxy gateway).
 
-## Providers
+## Functions
 
-| Model prefix | Backend |
+| LiteLLM | LLMatrix |
 |---|---|
-| `openai/` | OpenAI Chat Completions |
-| `deepseek/` | DeepSeek (OpenAI-compatible) |
-| `ollama/` | Ollama (OpenAI-compatible) |
-| `anthropic/` | Anthropic Messages API |
-| `gemini/` | Google Gemini generateContent |
-| `openai-compatible/` | Custom OpenAI-compatible base URL |
+| `completion` | `sdk.Completion` / `Client.ChatCompletion` |
+| streaming completion | `sdk.CompletionStream` |
+| `embedding` | `sdk.Embedding` |
+| `image_generation` | `sdk.ImageGeneration` |
+| `speech` | `sdk.Speech` |
+| `transcription` | `sdk.Transcription` |
+| `rerank` | `sdk.Rerank` |
+| `Router` | `sdk.NewRouter` |
+| callbacks | `WithSuccessCallback` / `WithFailureCallback` |
+| exception mapping | `MapError` → `APIError` |
 
 ```go
-client := sdk.NewClient(
-    sdk.WithAPIKey(os.Getenv("ANTHROPIC_API_KEY")),
-    sdk.WithModel("anthropic/claude-sonnet-4-5"),
-    sdk.WithMaxRetries(3),
-)
-resp, err := client.ChatCompletion(ctx, &chat.Request{
+sdk.Configure(sdk.WithAPIKey(os.Getenv("OPENAI_API_KEY")))
+resp, err := sdk.Completion(ctx, &chat.Request{
+    Model: "gpt-4o-mini", // alias → openai/gpt-4o-mini
     Messages: []chat.Message{{Role: "user", Content: "Hello"}},
 })
 ```

@@ -2,19 +2,33 @@ package sdk
 
 import (
 	"github.com/icosmos-space/llmatrix/engine/types"
+	"github.com/icosmos-space/llmatrix/sdk/audio"
 	"github.com/icosmos-space/llmatrix/sdk/chat"
 	"github.com/icosmos-space/llmatrix/sdk/embedding"
+	"github.com/icosmos-space/llmatrix/sdk/image"
+	"github.com/icosmos-space/llmatrix/sdk/rerank"
 	"github.com/icosmos-space/llmatrix/sdk/tools"
 )
 
 func toEngineChatRequest(req *chat.Request, model string) *types.ChatRequest {
 	out := &types.ChatRequest{
-		Model:       model,
-		Temperature: req.Temperature,
-		MaxTokens:   req.MaxTokens,
-		Stream:      req.Stream,
-		ToolChoice:  req.ToolChoice,
-		Messages:    make([]types.Message, 0, len(req.Messages)),
+		Model:             model,
+		Temperature:       req.Temperature,
+		TopP:              req.TopP,
+		N:                 req.N,
+		Stop:              req.Stop,
+		MaxTokens:         req.MaxTokens,
+		PresencePenalty:   req.PresencePenalty,
+		FrequencyPenalty:  req.FrequencyPenalty,
+		LogitBias:         req.LogitBias,
+		User:              req.User,
+		Seed:              req.Seed,
+		ResponseFormat:    req.ResponseFormat,
+		Stream:            req.Stream,
+		StreamOptions:     req.StreamOptions,
+		ToolChoice:        req.ToolChoice,
+		ParallelToolCalls: req.ParallelToolCalls,
+		Messages:          make([]types.Message, 0, len(req.Messages)),
 	}
 	for _, m := range req.Messages {
 		msg := types.Message{
@@ -87,8 +101,11 @@ func fromEngineChatResponse(resp *types.ChatResponse) *chat.Response {
 
 func toEngineEmbeddingRequest(req *embedding.Request, model string) *types.EmbeddingRequest {
 	return &types.EmbeddingRequest{
-		Model: model,
-		Input: req.Input,
+		Model:          model,
+		Input:          req.Input,
+		Dimensions:     req.Dimensions,
+		EncodingFormat: req.EncodingFormat,
+		User:           req.User,
 	}
 }
 
@@ -109,6 +126,121 @@ func fromEngineEmbeddingResponse(resp *types.EmbeddingResponse) *embedding.Respo
 		out.Data = append(out.Data, embedding.Item{
 			Index:     d.Index,
 			Embedding: d.Embedding,
+		})
+	}
+	return out
+}
+
+func toEngineImageRequest(req *image.Request, model string) *types.ImageRequest {
+	return &types.ImageRequest{
+		Model:          model,
+		Prompt:         req.Prompt,
+		N:              req.N,
+		Size:           req.Size,
+		Quality:        req.Quality,
+		Style:          req.Style,
+		ResponseFormat: req.ResponseFormat,
+		User:           req.User,
+	}
+}
+
+func fromEngineImageResponse(resp *types.ImageResponse) *image.Response {
+	if resp == nil {
+		return nil
+	}
+	out := &image.Response{
+		Created:  resp.Created,
+		Provider: resp.Provider,
+		Model:    resp.Model,
+		Data:     make([]image.Data, 0, len(resp.Data)),
+	}
+	for _, d := range resp.Data {
+		out.Data = append(out.Data, image.Data{
+			URL:     d.URL,
+			B64JSON: d.B64JSON,
+			Revised: d.Revised,
+		})
+	}
+	return out
+}
+
+func toEngineSpeechRequest(req *audio.SpeechRequest, model string) *types.SpeechRequest {
+	return &types.SpeechRequest{
+		Model:          model,
+		Input:          req.Input,
+		Voice:          req.Voice,
+		ResponseFormat: req.ResponseFormat,
+		Speed:          req.Speed,
+	}
+}
+
+func fromEngineSpeechResponse(resp *types.SpeechResponse) *audio.SpeechResponse {
+	if resp == nil {
+		return nil
+	}
+	return &audio.SpeechResponse{
+		ContentType: resp.ContentType,
+		Audio:       resp.Audio,
+		Provider:    resp.Provider,
+		Model:       resp.Model,
+	}
+}
+
+func toEngineTranscriptionRequest(req *audio.TranscriptionRequest, model string) *types.TranscriptionRequest {
+	return &types.TranscriptionRequest{
+		Model:          model,
+		FileName:       req.FileName,
+		Audio:          req.Audio,
+		Language:       req.Language,
+		Prompt:         req.Prompt,
+		ResponseFormat: req.ResponseFormat,
+		Temperature:    req.Temperature,
+	}
+}
+
+func fromEngineTranscriptionResponse(resp *types.TranscriptionResponse) *audio.TranscriptionResponse {
+	if resp == nil {
+		return nil
+	}
+	return &audio.TranscriptionResponse{
+		Text:     resp.Text,
+		Language: resp.Language,
+		Duration: resp.Duration,
+		Provider: resp.Provider,
+		Model:    resp.Model,
+	}
+}
+
+func toEngineRerankRequest(req *rerank.Request, model string) *types.RerankRequest {
+	return &types.RerankRequest{
+		Model:           model,
+		Query:           req.Query,
+		Documents:       req.Documents,
+		TopN:            req.TopN,
+		ReturnDocuments: req.ReturnDocuments,
+	}
+}
+
+func fromEngineRerankResponse(resp *types.RerankResponse) *rerank.Response {
+	if resp == nil {
+		return nil
+	}
+	out := &rerank.Response{
+		ID:       resp.ID,
+		Model:    resp.Model,
+		Provider: resp.Provider,
+		Results:  make([]rerank.Result, 0, len(resp.Results)),
+		Usage: rerank.Usage{
+			PromptTokens:     resp.Usage.PromptTokens,
+			CompletionTokens: resp.Usage.CompletionTokens,
+			TotalTokens:      resp.Usage.TotalTokens,
+		},
+	}
+	for _, r := range resp.Results {
+		out.Results = append(out.Results, rerank.Result{
+			Index:          r.Index,
+			RelevanceScore: r.RelevanceScore,
+			Document:       r.Document,
 		})
 	}
 	return out

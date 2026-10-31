@@ -9,10 +9,14 @@ type Info struct {
 
 // Capabilities advertises supported features.
 type Capabilities struct {
-	Chat       bool
-	Streaming  bool
-	Tools      bool
-	Embeddings bool
+	Chat          bool
+	Streaming     bool
+	Tools         bool
+	Embeddings    bool
+	Images        bool
+	Speech        bool
+	Transcription bool
+	Rerank        bool
 }
 
 // Provider is the root provider identity.

@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/icosmos-space/llmatrix/engine/callback"
+	"github.com/icosmos-space/llmatrix/engine/model"
 	"github.com/icosmos-space/llmatrix/engine/retry"
 )
 
@@ -16,13 +18,17 @@ type Config struct {
 	HTTPClient *http.Client
 	Timeout    time.Duration
 	Retry      retry.Policy
-	Fallbacks  []string // LiteLLM-style "provider/model" refs tried after primary fails
+	Fallbacks  []string
+	Aliases    *model.AliasMap
+	Callbacks  *callback.Bus
 }
 
 func defaultConfig() Config {
 	return Config{
-		Timeout: 120 * time.Second,
-		Retry:   retry.DefaultPolicy(),
+		Timeout:   120 * time.Second,
+		Retry:     retry.DefaultPolicy(),
+		Aliases:   model.DefaultAliases(),
+		Callbacks: &callback.Bus{},
 	}
 }
 

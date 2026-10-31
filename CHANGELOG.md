@@ -19,4 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tool calling for OpenAI-compatible and Anthropic (`tools` / `tool_choice` / `tool_calls`).
 - SDK `WithFallback` model chain; `engine/router` FallbackStrategy helpers.
 - Proxy `ChatService` wired to Engine providers; SDK `proxy.Client` HTTP implementation.
+- LiteLLM SDK surface expansion: package-level `Completion`/`Embedding`/`ImageGeneration`/`Speech`/`Transcription`/`Rerank`,
+  model aliases, callbacks, OpenAI-style `APIError`, Router load balancing, richer chat params,
+  and OpenAI-compatible image/speech/transcription/rerank providers.
 
