@@ -1,0 +1,10 @@
+services:
+  llmatrix-proxy:
+    build:
+      context: ../../..
+      dockerfile: proxy/deployments/docker/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      LLMATRIX_LISTEN: ":8080"
+      # LLMATRIX_API_KEY: "replace-me"

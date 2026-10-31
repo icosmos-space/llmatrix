@@ -7,10 +7,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/your-username/llmatrix/stargazers"><img src="https://img.shields.io/github/stars/your-username/llmatrix?style=flat" alt="GitHub Stars" /></a>
-  <a href="https://github.com/your-username/llmatrix/blob/main/LICENSE"><img src="https://img.shields.io/github/license/your-username/llmatrix" alt="License" /></a>
+  <a href="https://github.com/icosmos-space/llmatrix/stargazers"><img src="https://img.shields.io/github/stars/icosmos-space/llmatrix?style=flat" alt="GitHub Stars" /></a>
+  <a href="https://github.com/icosmos-space/llmatrix/blob/main/LICENSE"><img src="https://img.shields.io/github/license/icosmos-space/llmatrix" alt="License" /></a>
   <a href="https://go.dev/"><img src="https://img.shields.io/badge/Go-1.23%2B-00ADD8?logo=go" alt="Go Version" /></a>
-  <a href="https://github.com/your-username/llmatrix/actions"><img src="https://img.shields.io/github/actions/workflow/status/your-username/llmatrix/ci.yml?branch=main" alt="Build Status" /></a>
+  <a href="https://github.com/icosmos-space/llmatrix/actions"><img src="https://img.shields.io/github/actions/workflow/status/icosmos-space/llmatrix/ci.yml?branch=main" alt="Build Status" /></a>
 </p>
 
 **LLMatrix** is a unified LLM SDK written in Go. It provides a consistent interface for interacting with multiple Large Language Model providers, allowing developers to switch between models without rewriting application code.
@@ -43,10 +43,22 @@ LLMatrix abstracts these differences behind a unified Go interface.
 
 > Provider support is under active development. Check the project roadmap for implementation status.
 
+## Repository layout
+
+```text
+llmatrix/
+├── sdk/        # Public Go client
+├── engine/     # Provider execution core
+├── proxy/      # HTTP proxy service
+├── examples/   # Cross-module examples
+├── tests/      # Integration / e2e
+└── docs/       # Architecture and module docs
+```
+
 ## Installation
 
 ```bash
-go get github.com/your-username/llmatrix
+go get github.com/icosmos-space/llmatrix/sdk
 ```
 
 ## Quick Start
@@ -59,20 +71,21 @@ import (
     "fmt"
     "log"
 
-    "github.com/your-username/llmatrix"
+    "github.com/icosmos-space/llmatrix/sdk"
+    "github.com/icosmos-space/llmatrix/sdk/chat"
 )
 
 func main() {
-    client := llmatrix.NewClient(
-        llmatrix.WithProvider("openai"),
-        llmatrix.WithAPIKey("YOUR_API_KEY"),
-        llmatrix.WithModel("gpt-4o"),
+    client := sdk.NewClient(
+        sdk.WithProvider("openai"),
+        sdk.WithAPIKey("YOUR_API_KEY"),
+        sdk.WithModel("gpt-4o"),
     )
 
     resp, err := client.ChatCompletion(
         context.Background(),
-        &llmatrix.ChatRequest{
-            Messages: []llmatrix.Message{
+        &chat.Request{
+            Messages: []chat.Message{
                 {
                     Role:    "user",
                     Content: "Explain how Go interfaces work.",
@@ -88,47 +101,37 @@ func main() {
 }
 ```
 
-> The API above illustrates the intended interface. It will be updated as the public API stabilizes.
+> The API above illustrates the intended interface. Methods currently return `ErrNotImplemented` until providers are wired.
 
 ## Architecture
 
-LLMatrix separates the unified API from provider-specific implementations.
+LLMatrix is a Go workspace with three modules: **SDK**, **Engine**, and **Proxy**.
 
 ```text
-                 Application
-                      |
-                      v
-              +---------------+
-              |    LLMatrix   |
-              |  Unified API  |
-              +---------------+
-                      |
-                      v
-              +---------------+
-              | Provider Layer|
-              +---------------+
-                /     |     \
-               /      |      \
-              v       v       v
-           OpenAI  Anthropic  Gemini
-              |       |       |
-              v       v       v
-           Model APIs and Services
+Application / SDK Client
+        |
+        v
+   +---------+
+   |   SDK   |
+   +---------+
+        |
+        +------------------+
+        |                  |
+        v                  v
+   +---------+       +-----------+
+   | Engine  | <---- |   Proxy   |
+   +---------+       +-----------+
+        |
+   providers / protocol / router
 ```
 
-### Core Modules
+| Module | Path | Responsibility |
+|---|---|---|
+| SDK | `sdk/` | Public client API (chat, embedding, streaming, tools, proxy client) |
+| Engine | `engine/` | Unified types, provider interfaces, registry, execution, routing |
+| Proxy | `proxy/` | HTTP gateway with auth, rate limit, channel routing, billing |
 
-| Module | Responsibility |
-|---|---|
-| Client | Unified entry point |
-| Provider | Provider-specific API adapters |
-| Chat | Chat completion requests and responses |
-| Streaming | Stream response handling |
-| Embedding | Text embedding interfaces |
-| Tool Calling | Function and tool invocation |
-| Router | Model selection and routing |
-| Retry | Retry and error recovery |
-| Types | Shared request and response structures |
+See [docs/architecture/overview.md](docs/architecture/overview.md) for details.
 
 ## Roadmap
 

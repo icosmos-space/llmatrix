@@ -1,0 +1,28 @@
+name: proxy
+
+on:
+  push:
+    paths:
+      - 'proxy/**'
+      - 'engine/**'
+      - '.github/workflows/proxy.yml'
+  pull_request:
+    paths:
+      - 'proxy/**'
+      - 'engine/**'
+      - '.github/workflows/proxy.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: proxy
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+      - run: go test ./...
+      - run: go vet ./...
+      - run: go build -o /tmp/llmatrix-proxy ./cmd/llmatrix-proxy

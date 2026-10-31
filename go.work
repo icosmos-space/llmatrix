@@ -1,0 +1,9 @@
+go 1.23
+
+use (
+	./engine
+	./examples
+	./proxy
+	./sdk
+	./tests
+)

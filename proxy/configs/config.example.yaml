@@ -1,0 +1,10 @@
+listen_addr: ":8080"
+# api_key: "replace-me"
+
+# channels:
+#   - id: openai-primary
+#     provider: openai
+#     base_url: https://api.openai.com/v1
+#     api_key_env: OPENAI_API_KEY
+#     weight: 1
+#     enabled: true

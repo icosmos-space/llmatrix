@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llmatrix-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llmatrix-proxy
+  template:
+    metadata:
+      labels:
+        app: llmatrix-proxy
+    spec:
+      containers:
+        - name: llmatrix-proxy
+          image: llmatrix-proxy:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: LLMATRIX_LISTEN
+              value: ":8080"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llmatrix-proxy
+spec:
+  selector:
+    app: llmatrix-proxy
+  ports:
+    - port: 80
+      targetPort: 8080
