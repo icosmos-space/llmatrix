@@ -7,6 +7,7 @@ import (
 	"github.com/icosmos-space/llmatrix/engine/model"
 	"github.com/icosmos-space/llmatrix/engine/provider"
 	"github.com/icosmos-space/llmatrix/engine/registry"
+	"github.com/icosmos-space/llmatrix/engine/retry"
 	"github.com/icosmos-space/llmatrix/sdk/chat"
 	"github.com/icosmos-space/llmatrix/sdk/embedding"
 	"github.com/icosmos-space/llmatrix/sdk/streaming"
@@ -29,7 +30,7 @@ func NewClient(opts ...Option) *Client {
 
 // ChatCompletion performs a non-streaming chat completion.
 // Model may be set on the request or via WithModel; LiteLLM-style
-// "provider/model" strings are supported (e.g. "deepseek/deepseek-chat").
+// "provider/model" strings are supported (e.g. "anthropic/claude-sonnet-4-5").
 func (c *Client) ChatCompletion(ctx context.Context, req *chat.Request) (*chat.Response, error) {
 	if req == nil {
 		return nil, ErrInvalidRequest
@@ -44,14 +45,24 @@ func (c *Client) ChatCompletion(ctx context.Context, req *chat.Request) (*chat.R
 	}
 	engineReq := toEngineChatRequest(req, ref.Model)
 	engineReq.Stream = false
-	resp, err := chatProv.ChatCompletion(ctx, engineReq)
+
+	var resp *chat.Response
+	err = retry.Do(ctx, c.cfg.Retry, func(ctx context.Context) error {
+		out, callErr := chatProv.ChatCompletion(ctx, engineReq)
+		if callErr != nil {
+			return callErr
+		}
+		resp = fromEngineChatResponse(out)
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
-	return fromEngineChatResponse(resp), nil
+	return resp, nil
 }
 
 // ChatCompletionStream performs a streaming chat completion.
+// Streaming calls are not retried after the HTTP response starts.
 func (c *Client) ChatCompletionStream(ctx context.Context, req *chat.Request) (streaming.Stream, error) {
 	if req == nil {
 		return nil, ErrInvalidRequest
@@ -86,11 +97,20 @@ func (c *Client) Embeddings(ctx context.Context, req *embedding.Request) (*embed
 	if !ok {
 		return nil, fmt.Errorf("%w: provider %q does not support embeddings", ErrUnsupported, ref.Provider)
 	}
-	resp, err := embProv.Embeddings(ctx, toEngineEmbeddingRequest(req, ref.Model))
+
+	var resp *embedding.Response
+	err = retry.Do(ctx, c.cfg.Retry, func(ctx context.Context) error {
+		out, callErr := embProv.Embeddings(ctx, toEngineEmbeddingRequest(req, ref.Model))
+		if callErr != nil {
+			return callErr
+		}
+		resp = fromEngineEmbeddingResponse(out)
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
-	return fromEngineEmbeddingResponse(resp), nil
+	return resp, nil
 }
 
 func (c *Client) resolveChatProvider(requestModel string) (model.Ref, provider.Provider, error) {

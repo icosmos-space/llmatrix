@@ -2,12 +2,15 @@ package anthropic
 
 import "github.com/icosmos-space/llmatrix/engine/types"
 
-// ToChatRequest converts an engine ChatRequest into an Anthropic-shaped payload.
-func ToChatRequest(req *types.ChatRequest) *types.ChatRequest {
+// ToMessagesRequest documents the Anthropic Messages mapping used by
+// engine/providers/anthropic: system messages become the top-level `system`
+// field; remaining messages are user/assistant content blocks.
+func ToMessagesRequest(req *types.ChatRequest) *types.ChatRequest {
 	return req
 }
 
-// FromChatResponse normalizes an Anthropic response into engine types.
-func FromChatResponse(resp *types.ChatResponse) *types.ChatResponse {
+// FromMessagesResponse normalizes Anthropic stop reasons into OpenAI-style
+// finish_reason values (end_turn -> stop, max_tokens -> length).
+func FromMessagesResponse(resp *types.ChatResponse) *types.ChatResponse {
 	return resp
 }

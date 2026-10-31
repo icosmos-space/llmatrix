@@ -3,6 +3,8 @@ package sdk
 import (
 	"net/http"
 	"time"
+
+	"github.com/icosmos-space/llmatrix/engine/retry"
 )
 
 // Option configures a Client.
@@ -37,4 +39,19 @@ func WithHTTPClient(client *http.Client) Option {
 // WithTimeout sets the default HTTP client timeout when no HTTPClient is provided.
 func WithTimeout(d time.Duration) Option {
 	return func(c *Config) { c.Timeout = d }
+}
+
+// WithRetry sets the retry policy for non-streaming calls.
+func WithRetry(policy retry.Policy) Option {
+	return func(c *Config) { c.Retry = policy }
+}
+
+// WithMaxRetries sets MaxAttempts on the retry policy (0 disables retries beyond first try).
+func WithMaxRetries(n int) Option {
+	return func(c *Config) {
+		if c.Retry.MaxAttempts == 0 {
+			c.Retry = retry.DefaultPolicy()
+		}
+		c.Retry.MaxAttempts = n
+	}
 }

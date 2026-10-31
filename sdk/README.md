@@ -2,14 +2,18 @@
 
 Unified Go client inspired by [LiteLLM](https://github.com/BerriAI/litellm): one API, multiple providers.
 
-Phase 1 providers (OpenAI-compatible HTTP):
+Supported providers:
 
 | Provider | Model example | Env key |
 |---|---|---|
 | OpenAI | `openai/gpt-4o-mini` | `OPENAI_API_KEY` |
 | DeepSeek | `deepseek/deepseek-chat` | `DEEPSEEK_API_KEY` |
 | Ollama | `ollama/llama3` | (optional) |
+| Anthropic | `anthropic/claude-sonnet-4-5` | `ANTHROPIC_API_KEY` |
+| Gemini | `gemini/gemini-2.0-flash` | `GEMINI_API_KEY` / `GOOGLE_API_KEY` |
 | Generic | `openai-compatible/...` + `WithBaseURL` | `OPENAI_API_KEY` |
+
+Non-streaming calls retry on rate limits / transient errors by default (`WithMaxRetries`, `WithRetry`).
 
 ## Install
 

@@ -26,6 +26,8 @@ func mapHTTPError(provider string, status int, body []byte) error {
 		kind = errors.KindNotFound
 	case http.StatusTooManyRequests:
 		kind = errors.KindRateLimited
+	case http.StatusRequestTimeout, http.StatusBadGateway, http.StatusServiceUnavailable, http.StatusGatewayTimeout:
+		kind = errors.KindTimeout
 	}
-	return errors.Wrap(kind, provider, fmt.Sprintf("HTTP %d: %s", status, truncate(msg, 500)), nil)
+	return errors.WrapStatus(kind, provider, fmt.Sprintf("HTTP %d: %s", status, truncate(msg, 500)), status, nil)
 }

@@ -1,6 +1,9 @@
 package errors
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // Kind classifies engine errors.
 type Kind string
@@ -12,14 +15,16 @@ const (
 	KindProvider       Kind = "provider"
 	KindNotFound       Kind = "not_found"
 	KindInternal       Kind = "internal"
+	KindTimeout        Kind = "timeout"
 )
 
 // Error is a structured engine error.
 type Error struct {
-	Kind     Kind
-	Provider string
-	Message  string
-	Cause    error
+	Kind       Kind
+	Provider   string
+	Message    string
+	StatusCode int
+	Cause      error
 }
 
 func (e *Error) Error() string {
@@ -34,4 +39,39 @@ func (e *Error) Unwrap() error { return e.Cause }
 // Wrap builds a structured Error.
 func Wrap(kind Kind, provider, message string, cause error) *Error {
 	return &Error{Kind: kind, Provider: provider, Message: message, Cause: cause}
+}
+
+// WrapStatus builds a structured Error with an HTTP status.
+func WrapStatus(kind Kind, provider, message string, status int, cause error) *Error {
+	return &Error{Kind: kind, Provider: provider, Message: message, StatusCode: status, Cause: cause}
+}
+
+// As extracts a structured *Error from err.
+func As(err error) (*Error, bool) {
+	var e *Error
+	if errors.As(err, &e) {
+		return e, true
+	}
+	return nil, false
+}
+
+// IsRetryable reports whether the error is safe to retry.
+func IsRetryable(err error) bool {
+	if err == nil {
+		return false
+	}
+	e, ok := As(err)
+	if !ok {
+		// network / context deadline often wrapped without Kind
+		return true
+	}
+	switch e.Kind {
+	case KindRateLimited, KindTimeout, KindInternal, KindProvider:
+		if e.StatusCode == 400 || e.StatusCode == 401 || e.StatusCode == 403 || e.StatusCode == 404 {
+			return false
+		}
+		return true
+	default:
+		return false
+	}
 }

@@ -38,8 +38,8 @@ LLMatrix abstracts these differences behind a unified Go interface.
 | DeepSeek | Yes | Yes | Partial | Yes |
 | Ollama | Yes | Yes | Partial | Yes |
 | OpenAI-compatible APIs | Yes | Yes | Partial | Yes |
-| Anthropic | Planned | Planned | Planned | Planned |
-| Google Gemini | Planned | Planned | Planned | Planned |
+| Anthropic | Yes | Yes | Partial | — |
+| Google Gemini | Yes | Yes | Partial | Yes |
 
 > Provider support is under active development. Check the project roadmap for implementation status.
 
@@ -101,7 +101,7 @@ func main() {
 }
 ```
 
-> Phase 1 supports OpenAI / DeepSeek / Ollama (and any OpenAI-compatible base URL). Anthropic / Gemini come next.
+> Supported: OpenAI / DeepSeek / Ollama / Anthropic / Gemini (and any OpenAI-compatible base URL). Non-streaming calls include default retries.
 
 ## Architecture
 
@@ -148,18 +148,18 @@ See [docs/architecture/overview.md](docs/architecture/overview.md) for details.
 ### Phase 2 — Provider Ecosystem
 
 - [x] OpenAI
-- [ ] Anthropic
-- [ ] Google Gemini
+- [x] Anthropic
+- [x] Google Gemini
 - [x] DeepSeek
 - [x] Ollama
-- [ ] Additional providers
+- [ ] Additional providers (Azure, Bedrock, …)
 
 ### Phase 3 — Advanced Features
 
-- [ ] Tool Calling
-- [ ] Embeddings
+- [ ] Tool Calling (end-to-end)
+- [x] Embeddings (OpenAI-compatible + Gemini)
 - [ ] Model aliases
-- [ ] Automatic retries
+- [x] Automatic retries
 - [ ] Fallback strategies
 - [ ] Load balancing
 - [ ] Model routing

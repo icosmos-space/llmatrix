@@ -13,4 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Scaffolding for providers, protocol adapters, proxy service, docs, and CI workflows.
 - Phase 1 LiteLLM-style SDK: model parsing (`provider/model`), chat / stream / embeddings
   via OpenAI-compatible HTTP for OpenAI, DeepSeek, and Ollama.
+- Anthropic Messages API provider (chat + SSE stream).
+- Gemini generateContent / streamGenerateContent / embedContent providers.
+- `engine/retry` with exponential backoff; SDK applies it to chat + embeddings.
 

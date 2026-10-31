@@ -3,6 +3,8 @@ package sdk
 import (
 	"net/http"
 	"time"
+
+	"github.com/icosmos-space/llmatrix/engine/retry"
 )
 
 // Config holds client-level settings.
@@ -13,11 +15,13 @@ type Config struct {
 	BaseURL    string
 	HTTPClient *http.Client
 	Timeout    time.Duration
+	Retry      retry.Policy
 }
 
 func defaultConfig() Config {
 	return Config{
 		Timeout: 120 * time.Second,
+		Retry:   retry.DefaultPolicy(),
 	}
 }
 
